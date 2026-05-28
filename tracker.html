@@ -43,13 +43,21 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 200; display: flex; j
 .nav-btn:hover { background: var(--ink) !important; }
 
 /* HERO */
-.hero { display: grid; grid-template-columns: 1fr 1fr; min-height: 100vh; padding-top: 72px; }
-.hero-left { background: var(--cream); padding: 5rem 4rem; display: flex; flex-direction: column; justify-content: center; }
+/* VIDEO HERO — full width */
+.video-hero { width: 100%; padding-top: 72px; background: #000; position: relative; }
+.video-wrap { position: relative; width: 100%; padding-bottom: 56.25%; overflow: hidden; }
+.video-wrap iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; }
+.sound-btn { position: absolute; bottom: 1.5rem; right: 1.5rem; background: rgba(0,0,0,0.6); color: white; border: 1px solid rgba(255,255,255,0.3); padding: 0.6rem 1rem; font-family: var(--sans); font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer; z-index: 20; display: flex; align-items: center; gap: 0.5rem; transition: background 0.2s; }
+.sound-btn:hover { background: rgba(0,0,0,0.85); }
+
+/* TEXT HERO — full width below video */
+.hero-text { background: var(--cream); padding: 5rem 4rem; }
+.hero-text-inner { max-width: 960px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 5rem; align-items: center; }
 .eyebrow { font-size: 0.72rem; font-weight: 500; letter-spacing: 0.22em; text-transform: uppercase; color: var(--teal); margin-bottom: 1.75rem; display: flex; align-items: center; gap: 0.75rem; }
 .eyebrow::before { content: ''; width: 28px; height: 1px; background: var(--teal); flex-shrink: 0; }
-.hero-title { font-family: var(--serif); font-size: clamp(2.8rem, 4.5vw, 4.5rem); font-weight: 900; line-height: 0.97; color: var(--ink); margin-bottom: 1.75rem; }
+.hero-title { font-family: var(--serif); font-size: clamp(2.8rem, 4.5vw, 4.2rem); font-weight: 900; line-height: 0.97; color: var(--ink); margin-bottom: 1.75rem; }
 .hero-title em { font-style: italic; color: var(--teal); display: block; }
-.hero-body { font-size: 1rem; color: var(--ink-mid); line-height: 1.8; max-width: 400px; margin-bottom: 2.25rem; }
+.hero-body { font-size: 1rem; color: var(--ink-mid); line-height: 1.8; margin-bottom: 2.25rem; }
 .btn-group { display: flex; gap: 1rem; flex-wrap: wrap; align-items: center; margin-bottom: 3rem; }
 .btn-dark { display: inline-flex; align-items: center; gap: 0.5rem; background: var(--ink); color: white; padding: 1rem 1.75rem; font-family: var(--sans); font-size: 0.78rem; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; text-decoration: none; transition: background 0.2s, transform 0.2s; white-space: nowrap; }
 .btn-dark:hover { background: var(--teal); transform: translateY(-2px); }
@@ -58,16 +66,10 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 200; display: flex; j
 .hero-stats { display: flex; gap: 2.5rem; padding-top: 2rem; border-top: 1px solid var(--border); }
 .hero-stat-num { font-family: var(--serif); font-size: 2rem; font-weight: 700; color: var(--ink); line-height: 1; display: block; }
 .hero-stat-label { font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-light); margin-top: 0.25rem; display: block; }
-
-/* HERO RIGHT — VIDEO */
-.hero-right { position: relative; overflow: hidden; background: #0a0a0a; }
-.hero-video-wrap { position: relative; width: 100%; height: 100%; }
-.hero-video-wrap iframe { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 177.78%; height: 100%; min-width: 100%; min-height: 56.25vw; pointer-events: none; }
-.hero-overlay-card { position: absolute; bottom: 2.5rem; left: 2rem; background: white; border-left: 3px solid var(--teal); padding: 1.25rem 1.5rem; max-width: 260px; white-space: nowrap; box-shadow: 0 12px 40px rgba(0,0,0,0.18); z-index: 10; }
-.overlay-tag { font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--teal); margin-bottom: 0.5rem; display: block; }
-.overlay-age { font-family: var(--serif); font-size: 2.5rem; font-weight: 900; color: var(--ink); line-height: 1; display: block; }
-.overlay-sub { font-size: 0.78rem; color: var(--ink-light); margin-top: 0.35rem; display: block; }
-.overlay-sub strong { color: var(--teal); }
+.hero-right-text { display: flex; flex-direction: column; gap: 1.5rem; padding-top: 1rem; }
+.hero-quote { border-left: 3px solid var(--teal); padding-left: 1.5rem; }
+.hero-quote-text { font-family: var(--serif); font-size: 1.1rem; font-style: italic; color: var(--ink-mid); line-height: 1.6; margin-bottom: 0.5rem; }
+.hero-quote-author { font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-light); }
 
 /* TICKER */
 .ticker { background: var(--teal-dark); padding: 0.85rem 0; overflow: hidden; white-space: nowrap; }
@@ -188,9 +190,8 @@ footer { background: #100F0D; padding: 3rem 4rem; display: flex; justify-content
 @media (max-width: 960px) {
   nav { padding: 1rem 1.5rem; }
   .nav-links { display: none; }
-  .hero { grid-template-columns: 1fr; }
-  .hero-right { height: 400px; }
-  .hero-left { padding: 4.5rem 1.5rem 3.5rem; }
+  .hero-text { padding: 3.5rem 1.5rem; }
+  .hero-text-inner { grid-template-columns: 1fr; gap: 2rem; }
   .data-inner, .newsletter-inner, .cta-band-inner, .how-header, .final-cta { grid-template-columns: 1fr; gap: 2.5rem; }
   .data-section, .how-section, .kpi-section, .newsletter-section, .testimonials { padding: 5rem 1.5rem; }
   .kpi-grid, .testi-grid { grid-template-columns: 1fr 1fr; }
@@ -220,32 +221,57 @@ footer { background: #100F0D; padding: 3rem 4rem; display: flex; justify-content
 </nav>
 
 <!-- HERO -->
-<div class="hero">
-  <div class="hero-left">
-    <div class="eyebrow">30-Day Longevity Tracker</div>
-    <h1 class="hero-title">Know your<br>biological<br><em>age. Change it.</em></h1>
-    <p class="hero-body">Most people discover they've been ageing badly only when it's too late to easily reverse it. Longeviq gives you a baseline, a score, and a 30-day protocol — built on peer-reviewed science.</p>
-    <div class="btn-group">
-      <a href="/baseline" class="btn-dark">Scan my biological age — free</a>
-      <a href="#how-it-works" class="btn-outline">How it works</a>
-    </div>
-    <div class="hero-stats">
-      <div><span class="hero-stat-num">9</span><span class="hero-stat-label">KPIs tracked</span></div>
-      <div><span class="hero-stat-num">3 min</span><span class="hero-stat-label">Per check-in</span></div>
-      <div><span class="hero-stat-num">30</span><span class="hero-stat-label">Day protocol</span></div>
-    </div>
+<!-- FULL WIDTH VIDEO -->
+<div class="video-hero">
+  <div class="video-wrap">
+    <iframe id="yt-player" src="https://www.youtube.com/embed/2pxidTDADA0?autoplay=1&mute=1&loop=1&playlist=2pxidTDADA0&controls=0&showinfo=0&rel=0&modestbranding=1&playsinline=1&cc_load_policy=0&iv_load_policy=3&enablejsapi=1" frameborder="0" allow="autoplay; fullscreen" allowfullscreen></iframe>
   </div>
-  <div class="hero-right">
-    <div class="hero-video-wrap">
-      <iframe src="https://www.youtube.com/embed/2pxidTDADA0?autoplay=1&mute=1&loop=1&playlist=2pxidTDADA0&controls=0&showinfo=0&rel=0&modestbranding=1&playsinline=1&cc_load_policy=0&iv_load_policy=3" frameborder="0" allow="autoplay; muted; fullscreen" allowfullscreen></iframe>
+  <button class="sound-btn" id="sound-toggle" onclick="toggleSound()">🔇 Unmute</button>
+</div>
+
+<!-- FULL WIDTH TEXT SECTION -->
+<div class="hero-text">
+  <div class="hero-text-inner">
+    <div>
+      <div class="eyebrow">30-Day Longevity Tracker</div>
+      <h1 class="hero-title">Know your<br>biological<br><em>age. Change it.</em></h1>
+      <div class="btn-group">
+        <a href="/baseline" class="btn-dark">Scan my biological age — free</a>
+        <a href="#how-it-works" class="btn-outline">How it works</a>
+      </div>
+      <div class="hero-stats">
+        <div><span class="hero-stat-num">9</span><span class="hero-stat-label">KPIs tracked</span></div>
+        <div><span class="hero-stat-num">3 min</span><span class="hero-stat-label">Per check-in</span></div>
+        <div><span class="hero-stat-num">30</span><span class="hero-stat-label">Day protocol</span></div>
+      </div>
     </div>
-    <div class="hero-overlay-card">
-      <span class="overlay-tag">Biological Age · Day 30</span>
-      <span class="overlay-age">34</span>
-      <span class="overlay-sub">Chronological: 41 · <strong>7 years younger</strong></span>
+    <div class="hero-right-text">
+      <p class="hero-body">Most people discover they've been ageing badly only when it's too late to easily reverse it. Longeviq gives you a baseline, a score, and a 30-day protocol — built on peer-reviewed science.</p>
+      <div class="hero-quote">
+        <div class="hero-quote-text">"I tested my biological age and it was 11 years younger than my passport. That changed how I approach every single health decision."</div>
+        <div class="hero-quote-author">— Lena Ferrara · Longeviq</div>
+      </div>
     </div>
   </div>
 </div>
+
+<script>
+var muted = true;
+function toggleSound() {
+  var iframe = document.getElementById('yt-player');
+  var btn = document.getElementById('sound-toggle');
+  var src = iframe.src;
+  if (muted) {
+    iframe.src = src.replace('mute=1', 'mute=0');
+    btn.innerHTML = '🔊 Mute';
+    muted = false;
+  } else {
+    iframe.src = src.replace('mute=0', 'mute=1');
+    btn.innerHTML = '🔇 Unmute';
+    muted = true;
+  }
+}
+</script>
 
 <!-- TICKER -->
 <div class="ticker">
