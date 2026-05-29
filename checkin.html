@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Longeviq — Weekly Check-in</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --cream: #F2EDE6;
+  --warm-white: #FAF7F3;
+  --ink: #1A1714;
+  --ink-mid: #3D3830;
+  --ink-light: #6B6257;
+  --teal: #2D6A5A;
+  --teal-light: #3D8B72;
+  --teal-dark: #1E4D40;
+  --gold: #C9963A;
+  --border: #DDD5C8;
+  --red: #C0392B;
+  --serif: 'Playfair Display', Georgia, serif;
+  --sans: 'DM Sans', system-ui, sans-serif;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { background: var(--warm-white); color: var(--ink); font-family: var(--sans); font-weight: 300; line-height: 1.65; }
+
+/* ─── NAV ─── */
+nav {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 1.4rem 5rem;
+  background: var(--warm-white);
+  border-bottom: 1px solid var(--border);
+}
+.nav-logo { font-family: var(--serif); font-size: 1.3rem; font-weight: 700; color: var(--ink); text-decoration: none; }
+
+/* ─── STATES ─── */
+.state { display: none; }
+.state.active { display: block; }
+
+/* ─── ERROR / LOADING ─── */
+.page-center {
+  min-height: calc(100vh - 66px);
+  display: flex; align-items: center; justify-content: center;
+  padding: 3rem 1.5rem;
+}
+.status-box { text-align: center; max-width: 480px; }
+.status-box h2 { font-family: var(--serif); font-size: 1.8rem; font-weight: 700; color: var(--ink); margin-bottom: 1rem; }
+.status-box p { font-size: 0.95rem; color: var(--ink-light); line-height: 1.7; }
+.spinner {
+  width: 36px; height: 36px; border: 2px solid var(--border);
+  border-top-color: var(--teal); border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin: 0 auto 1.5rem;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ─── CHECKIN FORM ─── */
+.checkin-wrap {
+  max-width: 720px; margin: 0 auto;
+  padding: 4rem 2rem 6rem;
+}
+.checkin-header { margin-bottom: 3rem; }
+.checkin-eyebrow {
+  font-size: 0.7rem; font-weight: 500; letter-spacing: 0.22em; text-transform: uppercase;
+  color: var(--teal); margin-bottom: 1rem;
+  display: flex; align-items: center; gap: 0.75rem;
+}
+.checkin-eyebrow::before { content: ''; width: 24px; height: 1px; background: var(--teal); }
+.checkin-h1 {
+  font-family: var(--serif); font-size: 2.4rem; font-weight: 900;
+  color: var(--ink); line-height: 1.1; margin-bottom: 0.75rem;
+}
+.checkin-h1 em { font-style: italic; color: var(--teal); }
+.checkin-sub { font-size: 0.97rem; color: var(--ink-mid); line-height: 1.75; }
+.week-badge {
+  display: inline-block;
+  background: var(--teal); color: white;
+  font-size: 0.7rem; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase;
+  padding: 0.35rem 0.9rem;
+  margin-bottom: 1.25rem;
+}
+
+/* ─── KPI SLIDERS ─── */
+.kpi-list { display: flex; flex-direction: column; gap: 0; }
+.kpi-item {
+  padding: 1.75rem 0;
+  border-bottom: 1px solid var(--border);
+}
+.kpi-item:first-child { border-top: 1px solid var(--border); }
+.kpi-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.6rem; }
+.kpi-name-wrap { }
+.kpi-label {
+  font-family: var(--serif); font-size: 1.05rem; font-weight: 700; color: var(--ink);
+  display: flex; align-items: center; gap: 0.6rem;
+}
+.kpi-abbr {
+  font-family: var(--sans); font-size: 0.6rem; font-weight: 600; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--teal);
+  background: rgba(45,106,90,0.09); padding: 0.2rem 0.45rem;
+}
+.kpi-hint { font-size: 0.8rem; color: var(--ink-light); margin-top: 0.2rem; line-height: 1.4; }
+.kpi-score-display {
+  text-align: right; flex-shrink: 0; margin-left: 1.5rem;
+}
+.kpi-current-val {
+  font-family: var(--serif); font-size: 1.8rem; font-weight: 900;
+  color: var(--teal); line-height: 1;
+}
+.kpi-baseline-val {
+  font-size: 0.7rem; color: var(--ink-light); margin-top: 0.2rem;
+  letter-spacing: 0.04em;
+}
+.kpi-delta {
+  font-size: 0.75rem; font-weight: 500; margin-top: 0.1rem;
+}
+.kpi-delta.up { color: var(--teal); }
+.kpi-delta.down { color: var(--red); }
+.kpi-delta.same { color: var(--ink-light); }
+
+/* Slider */
+.slider-wrap { position: relative; padding: 0.5rem 0; }
+.kpi-slider {
+  -webkit-appearance: none; appearance: none;
+  width: 100%; height: 4px;
+  background: var(--border); outline: none; cursor: pointer;
+  border-radius: 0;
+}
+.kpi-slider::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none;
+  width: 20px; height: 20px;
+  background: var(--teal); border-radius: 50%;
+  cursor: pointer; border: 2px solid white;
+  box-shadow: 0 2px 6px rgba(45,106,90,0.35);
+  transition: transform 0.15s;
+}
+.kpi-slider::-webkit-slider-thumb:hover { transform: scale(1.15); }
+.kpi-slider::-moz-range-thumb {
+  width: 20px; height: 20px;
+  background: var(--teal); border-radius: 50%;
+  cursor: pointer; border: 2px solid white;
+}
+.slider-labels {
+  display: flex; justify-content: space-between;
+  margin-top: 0.4rem;
+}
+.slider-label { font-size: 0.65rem; color: var(--ink-light); letter-spacing: 0.05em; }
+
+/* Baseline marker line */
+.baseline-marker-wrap { position: relative; height: 0; }
+.baseline-marker {
+  position: absolute; top: -14px;
+  width: 2px; height: 12px; background: var(--gold);
+  transform: translateX(-50%);
+}
+.baseline-marker-tip {
+  position: absolute; top: -22px;
+  font-size: 0.58rem; color: var(--gold); font-weight: 500; letter-spacing: 0.06em;
+  white-space: nowrap; transform: translateX(-50%);
+}
+
+/* ─── SUBMIT ─── */
+.submit-wrap {
+  margin-top: 3rem; padding-top: 2.5rem; border-top: 1px solid var(--border);
+}
+.btn-primary {
+  display: inline-flex; align-items: center; gap: 0.6rem;
+  background: var(--teal); color: white;
+  padding: 1.1rem 2.5rem;
+  font-family: var(--sans); font-size: 0.82rem; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase;
+  border: none; cursor: pointer; transition: all 0.22s;
+  width: 100%;
+  justify-content: center;
+}
+.btn-primary:hover { background: var(--teal-dark); }
+.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+.submit-note { font-size: 0.78rem; color: var(--ink-light); text-align: center; margin-top: 1rem; }
+
+/* ─── RESULTS ─── */
+.results-wrap {
+  max-width: 720px; margin: 0 auto;
+  padding: 4rem 2rem 6rem;
+}
+.results-header { margin-bottom: 3rem; text-align: center; }
+.results-hero-score {
+  font-family: var(--serif); font-size: 5rem; font-weight: 900;
+  color: var(--teal); line-height: 1;
+  margin: 1.5rem 0 0.5rem;
+}
+.results-score-label {
+  font-size: 0.72rem; letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--ink-light); margin-bottom: 1rem;
+}
+.results-delta-hero {
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  font-size: 1rem; font-weight: 500; padding: 0.5rem 1.25rem;
+  margin-bottom: 1.5rem;
+}
+.results-delta-hero.up { background: rgba(45,106,90,0.1); color: var(--teal); }
+.results-delta-hero.down { background: rgba(192,57,43,0.08); color: var(--red); }
+.results-delta-hero.same { background: var(--cream); color: var(--ink-light); }
+.results-message {
+  font-family: var(--serif); font-size: 1.15rem; font-style: italic;
+  color: var(--ink-mid); line-height: 1.65; max-width: 500px; margin: 0 auto 0.5rem;
+}
+.results-submessage { font-size: 0.88rem; color: var(--ink-light); line-height: 1.7; }
+
+/* KPI comparison grid */
+.kpi-compare-grid {
+  display: flex; flex-direction: column; gap: 0;
+  margin-top: 2.5rem;
+}
+.kpi-compare-row {
+  display: grid; grid-template-columns: 1fr 80px 80px 60px;
+  align-items: center; gap: 1rem;
+  padding: 1.1rem 0; border-bottom: 1px solid var(--border);
+}
+.kpi-compare-row:first-child { border-top: 1px solid var(--border); }
+.kpi-compare-name { font-size: 0.88rem; font-weight: 500; color: var(--ink); }
+.kpi-compare-bar-wrap {
+  grid-column: 1 / -1;
+  display: none; /* hidden, shown below name on mobile */
+}
+.compare-scores { display: contents; }
+.compare-score {
+  text-align: center;
+}
+.compare-score-val { font-family: var(--serif); font-size: 1.2rem; font-weight: 700; }
+.compare-score-lbl { font-size: 0.6rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-light); }
+.compare-delta-cell { text-align: center; }
+.compare-delta {
+  font-size: 0.82rem; font-weight: 600; padding: 0.2rem 0.4rem;
+  display: inline-block;
+}
+.compare-delta.up { color: var(--teal); }
+.compare-delta.down { color: var(--red); }
+.compare-delta.same { color: var(--ink-light); }
+
+/* Progress bars */
+.dual-bar { position: relative; height: 6px; background: var(--border); margin-top: 0.5rem; }
+.dual-bar-baseline { position: absolute; left: 0; top: 0; height: 100%; background: var(--border); }
+.dual-bar-now { position: absolute; left: 0; top: 0; height: 100%; background: var(--teal); transition: width 0.8s ease; }
+
+.lena-message-box {
+  margin-top: 3rem; padding: 2rem 2.25rem;
+  background: var(--cream); border-left: 3px solid var(--teal);
+}
+.lena-msg-from { font-size: 0.68rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--teal); margin-bottom: 0.75rem; }
+.lena-msg-text { font-family: var(--serif); font-size: 1rem; font-style: italic; color: var(--ink); line-height: 1.7; }
+.lena-msg-sign { font-size: 0.82rem; color: var(--ink-light); margin-top: 0.75rem; }
+
+.results-actions { margin-top: 2.5rem; display: flex; gap: 1rem; flex-wrap: wrap; }
+.btn-secondary {
+  flex: 1; min-width: 200px;
+  display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
+  background: white; color: var(--ink);
+  padding: 1rem 1.5rem;
+  font-family: var(--sans); font-size: 0.78rem; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase;
+  border: 1px solid var(--border); cursor: pointer; text-decoration: none; transition: all 0.2s;
+}
+.btn-secondary:hover { border-color: var(--teal); color: var(--teal); }
+
+/* ─── MOBILE ─── */
+@media (max-width: 640px) {
+  nav { padding: 1.1rem 1.25rem; }
+  .checkin-wrap, .results-wrap { padding: 2.5rem 1.25rem 4rem; }
+  .checkin-h1 { font-size: 1.8rem; }
+  .kpi-compare-row { grid-template-columns: 1fr 60px 60px 50px; gap: 0.5rem; }
+  .results-hero-score { font-size: 3.5rem; }
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="nav-logo">Longeviq</a>
+</nav>
+
+<!-- STATE: LOADING -->
+<div id="state-loading" class="state active">
+  <div class="page-center">
+    <div class="status-box">
+      <div class="spinner"></div>
+      <p>Loading your check-in…</p>
+    </div>
+  </div>
+</div>
+
+<!-- STATE: ERROR -->
+<div id="state-error" class="state">
+  <div class="page-center">
+    <div class="status-box">
+      <h2>Something went wrong.</h2>
+      <p id="error-msg">We couldn't load your profile. Please use the link from your email or <a href="/" style="color:var(--teal)">return to the homepage</a>.</p>
+    </div>
+  </div>
+</div>
+
+<!-- STATE: FORM -->
+<div id="state-form" class="state">
+  <div class="checkin-wrap">
+    <div class="checkin-header">
+      <div id="week-badge" class="week-badge">Week 1 Check-in</div>
+      <div class="checkin-eyebrow">Your progress update</div>
+      <h1 class="checkin-h1">Hi <em id="first-name">there</em>, how are you feeling?</h1>
+      <p class="checkin-sub">Rate each marker honestly — the same way you did at baseline. The gold marker shows where you started. Your progress is only visible to you.</p>
+    </div>
+
+    <div class="kpi-list" id="kpi-list">
+      <!-- Injected by JS -->
+    </div>
+
+    <div class="submit-wrap">
+      <button class="btn-primary" id="submit-btn" onclick="submitCheckin()">
+        Save my check-in →
+      </button>
+      <p class="submit-note">Takes 2 minutes · Your answers are saved securely</p>
+    </div>
+  </div>
+</div>
+
+<!-- STATE: RESULTS -->
+<div id="state-results" class="state">
+  <div class="results-wrap">
+    <div class="results-header">
+      <div class="checkin-eyebrow" style="justify-content:center;">Check-in complete</div>
+      <div class="results-hero-score" id="res-score">—</div>
+      <div class="results-score-label">Overall longevity score · out of 10</div>
+      <div class="results-delta-hero" id="res-delta-hero">—</div>
+      <p class="results-message" id="res-message"></p>
+    </div>
+
+    <div class="kpi-compare-grid" id="kpi-compare-grid">
+      <!-- header row -->
+      <div class="kpi-compare-row" style="padding-bottom:0.5rem;">
+        <div class="kpi-compare-name" style="font-size:0.68rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink-light);">Marker</div>
+        <div style="text-align:center;font-size:0.68rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink-light);">Baseline</div>
+        <div style="text-align:center;font-size:0.68rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink-light);">Now</div>
+        <div style="text-align:center;font-size:0.68rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink-light);">Change</div>
+      </div>
+    </div>
+
+    <div class="lena-message-box">
+      <div class="lena-msg-from">From Lena</div>
+      <div class="lena-msg-text" id="lena-message"></div>
+      <div class="lena-msg-sign">— Lena Ferrara, Longeviq</div>
+    </div>
+
+    <div class="results-actions">
+      <a href="/tracker" class="btn-secondary">View full protocol →</a>
+      <a href="/" class="btn-secondary">Back to homepage</a>
+    </div>
+  </div>
+</div>
+
+<script>
+const SUPABASE_URL = 'https://hmbpklevxycqcwoscxpq.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_5axZNrPpg8Qgs1xx9cEcqQ_C0b7qfwG';
+
+const KPI_META = [
+  { key: 'sleep_quality',       name: 'Sleep Quality',       abbr: 'SL', hint: 'How rested do you wake up feeling on most mornings?' },
+  { key: 'energy_level',        name: 'Energy Level',        abbr: 'EN', hint: 'Your sustained energy throughout the day, without caffeine.' },
+  { key: 'resting_heart_rate',  name: 'Resting Heart Rate',  abbr: 'HR', hint: 'Your resting heart rate (1=high/poor, 10=low/excellent).' },
+  { key: 'grip_strength',       name: 'Grip Strength',       abbr: 'GS', hint: 'How strong does your grip feel compared to a year ago?' },
+  { key: 'waist_circumference', name: 'Waist Circumference', abbr: 'WC', hint: 'Your waist size relative to your ideal (10=at ideal, 1=far above).' },
+  { key: 'cognitive_sharpness', name: 'Cognitive Sharpness', abbr: 'CG', hint: 'Focus, memory, and mental clarity on a typical day.' },
+  { key: 'mood_resilience',     name: 'Mood & Resilience',   abbr: 'MR', hint: 'How well do you bounce back from stress and low moods?' },
+  { key: 'physical_strength',   name: 'Physical Strength',   abbr: 'ST', hint: 'Your overall physical strength and functional fitness.' },
+  { key: 'recovery_speed',      name: 'Recovery Speed',      abbr: 'RC', hint: 'How quickly do you recover after exercise or a bad night?' },
+];
+
+let userId = null;
+let baseline = null;
+let weekNumber = 1;
+
+function setState(id) {
+  document.querySelectorAll('.state').forEach(s => s.classList.remove('active'));
+  document.getElementById('state-' + id).classList.add('active');
+}
+
+function showError(msg) {
+  if (msg) document.getElementById('error-msg').textContent = msg;
+  setState('error');
+}
+
+async function supabaseGet(table, query) {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}?${query}`, {
+    headers: {
+      'apikey': SUPABASE_KEY,
+      'Authorization': 'Bearer ' + SUPABASE_KEY,
+    }
+  });
+  return res.json();
+}
+
+async function supabasePost(table, body) {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}`, {
+    method: 'POST',
+    headers: {
+      'apikey': SUPABASE_KEY,
+      'Authorization': 'Bearer ' + SUPABASE_KEY,
+      'Content-Type': 'application/json',
+      'Prefer': 'return=representation',
+    },
+    body: JSON.stringify(body)
+  });
+  return res.json();
+}
+
+function buildForm() {
+  const list = document.getElementById('kpi-list');
+  list.innerHTML = '';
+
+  KPI_META.forEach(kpi => {
+    const baseVal = baseline[kpi.key] || 5;
+    const item = document.createElement('div');
+    item.className = 'kpi-item';
+    item.innerHTML = `
+      <div class="kpi-top">
+        <div class="kpi-name-wrap">
+          <div class="kpi-label">
+            <span class="kpi-abbr">${kpi.abbr}</span>
+            ${kpi.name}
+          </div>
+          <div class="kpi-hint">${kpi.hint}</div>
+        </div>
+        <div class="kpi-score-display">
+          <div class="kpi-current-val" id="val-${kpi.key}">${baseVal}</div>
+          <div class="kpi-baseline-val">Baseline: ${baseVal}</div>
+          <div class="kpi-delta same" id="delta-${kpi.key}">→ no change</div>
+        </div>
+      </div>
+      <div class="slider-wrap">
+        <div class="baseline-marker-wrap">
+          <div class="baseline-marker" style="left:${(baseVal-1)/9*100}%"></div>
+          <div class="baseline-marker-tip" style="left:${(baseVal-1)/9*100}%">baseline</div>
+        </div>
+        <input type="range" min="1" max="10" value="${baseVal}"
+          class="kpi-slider" id="slider-${kpi.key}"
+          data-baseline="${baseVal}" data-key="${kpi.key}"
+          oninput="onSlide(this)">
+      </div>
+      <div class="slider-labels">
+        <span class="slider-label">1 — Needs work</span>
+        <span class="slider-label">10 — Excellent</span>
+      </div>
+    `;
+    list.appendChild(item);
+    updateSliderBackground(document.getElementById('slider-' + kpi.key));
+  });
+}
+
+function onSlide(input) {
+  const key = input.dataset.key;
+  const val = parseInt(input.value);
+  const base = parseInt(input.dataset.baseline);
+  const diff = val - base;
+
+  document.getElementById('val-' + key).textContent = val;
+  updateSliderBackground(input);
+
+  const deltaEl = document.getElementById('delta-' + key);
+  if (diff > 0) {
+    deltaEl.textContent = '↑ +' + diff + ' from baseline';
+    deltaEl.className = 'kpi-delta up';
+  } else if (diff < 0) {
+    deltaEl.textContent = '↓ ' + diff + ' from baseline';
+    deltaEl.className = 'kpi-delta down';
+  } else {
+    deltaEl.textContent = '→ no change';
+    deltaEl.className = 'kpi-delta same';
+  }
+}
+
+function updateSliderBackground(input) {
+  const pct = (parseInt(input.value) - 1) / 9 * 100;
+  input.style.background = `linear-gradient(to right, var(--teal) 0%, var(--teal) ${pct}%, var(--border) ${pct}%, var(--border) 100%)`;
+}
+
+async function submitCheckin() {
+  const btn = document.getElementById('submit-btn');
+  btn.disabled = true;
+  btn.textContent = 'Saving…';
+
+  const data = { user_id: userId, week_number: weekNumber };
+  KPI_META.forEach(kpi => {
+    data[kpi.key] = parseInt(document.getElementById('slider-' + kpi.key).value);
+  });
+
+  try {
+    const result = await supabasePost('checkins', data);
+    if (result && result[0]) {
+      showResults(data);
+    } else {
+      throw new Error('Save failed');
+    }
+  } catch(e) {
+    btn.disabled = false;
+    btn.textContent = 'Save my check-in →';
+    alert('Something went wrong saving your check-in. Please try again.');
+  }
+}
+
+function calcScore(data) {
+  const total = KPI_META.reduce((sum, kpi) => sum + (data[kpi.key] || 0), 0);
+  return Math.round(total / KPI_META.length * 10) / 10;
+}
+
+function getLenaMessage(score, delta, improvements, declines) {
+  if (delta > 1.5) {
+    return `Your numbers this week are genuinely impressive. A ${delta.toFixed(1)}-point improvement isn't luck — it's the compounding effect of consistent daily choices. Keep going exactly as you are.`;
+  } else if (delta > 0.5) {
+    return `You're moving in the right direction. Even small gains in ${improvements.slice(0,2).map(k => KPI_META.find(m=>m.key===k)?.name).join(' and ')} compound powerfully over 30 days. Stay the course.`;
+  } else if (delta > -0.5) {
+    return `Consistency is progress. Holding your baseline in week ${weekNumber} while your habits take root is exactly where you should be. The results accelerate in weeks 3 and 4.`;
+  } else {
+    const focusKPI = declines[0] ? KPI_META.find(m=>m.key===declines[0])?.name : 'sleep';
+    return `Some markers need attention — particularly ${focusKPI}. This is normal mid-protocol. Your body is adjusting. Focus on the single lowest KPI this week and don't try to fix everything at once.`;
+  }
+}
+
+function showResults(checkinData) {
+  const nowScore = calcScore(checkinData);
+  const baseScore = calcScore(baseline);
+  const delta = Math.round((nowScore - baseScore) * 10) / 10;
+
+  // Score display
+  document.getElementById('res-score').textContent = nowScore.toFixed(1);
+
+  // Delta hero
+  const deltaEl = document.getElementById('res-delta-hero');
+  if (delta > 0) {
+    deltaEl.textContent = '↑ +' + delta + ' since baseline';
+    deltaEl.className = 'results-delta-hero up';
+  } else if (delta < 0) {
+    deltaEl.textContent = '↓ ' + delta + ' since baseline';
+    deltaEl.className = 'results-delta-hero down';
+  } else {
+    deltaEl.textContent = '→ Same as baseline';
+    deltaEl.className = 'results-delta-hero same';
+  }
+
+  // KPI comparison
+  const improvements = [], declines = [];
+  const grid = document.getElementById('kpi-compare-grid');
+
+  KPI_META.forEach(kpi => {
+    const baseVal = baseline[kpi.key] || 0;
+    const nowVal = checkinData[kpi.key] || 0;
+    const diff = nowVal - baseVal;
+    if (diff > 0) improvements.push(kpi.key);
+    if (diff < 0) declines.push(kpi.key);
+
+    const row = document.createElement('div');
+    row.className = 'kpi-compare-row';
+
+    const deltaClass = diff > 0 ? 'up' : diff < 0 ? 'down' : 'same';
+    const deltaText = diff > 0 ? '+' + diff : diff === 0 ? '—' : String(diff);
+
+    row.innerHTML = `
+      <div>
+        <div class="kpi-compare-name">${kpi.name}</div>
+        <div class="dual-bar">
+          <div class="dual-bar-baseline" style="width:${baseVal*10}%"></div>
+          <div class="dual-bar-now" style="width:${nowVal*10}%"></div>
+        </div>
+      </div>
+      <div class="compare-score">
+        <div class="compare-score-val" style="color:var(--ink-light)">${baseVal}</div>
+        <div class="compare-score-lbl">Before</div>
+      </div>
+      <div class="compare-score">
+        <div class="compare-score-val" style="color:var(--teal)">${nowVal}</div>
+        <div class="compare-score-lbl">Now</div>
+      </div>
+      <div class="compare-delta-cell">
+        <span class="compare-delta ${deltaClass}">${deltaText}</span>
+      </div>
+    `;
+    grid.appendChild(row);
+  });
+
+  // Lena message
+  document.getElementById('lena-message').textContent =
+    getLenaMessage(nowScore, delta, improvements, declines);
+
+  setState('results');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ─── INIT ─────────────────────────────────────────────────────────
+async function init() {
+  const params = new URLSearchParams(window.location.search);
+  userId = parseInt(params.get('id'));
+
+  if (!userId || isNaN(userId)) {
+    showError('No user ID found. Please use the link from your email.');
+    return;
+  }
+
+  try {
+    // Load baseline
+    const users = await supabaseGet('users', `id=eq.${userId}&select=*`);
+    if (!users || !users.length) {
+      showError('Profile not found. Please use the link from your email.');
+      return;
+    }
+    baseline = users[0];
+
+    // Check how many check-ins they've already done
+    const checkins = await supabaseGet('checkins', `user_id=eq.${userId}&select=week_number&order=created_at.desc`);
+    weekNumber = checkins && checkins.length > 0
+      ? (checkins[0].week_number || checkins.length) + 1
+      : 1;
+
+    // Update UI
+    document.getElementById('first-name').textContent = baseline.first_name || 'there';
+    document.getElementById('week-badge').textContent = `Week ${weekNumber} Check-in`;
+
+    buildForm();
+    setState('form');
+  } catch(e) {
+    showError('Could not connect to the server. Please try again in a moment.');
+  }
+}
+
+window.addEventListener('load', init);
+</script>
+</body>
+</html>
