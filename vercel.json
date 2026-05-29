@@ -2,6 +2,8 @@
   "cleanUrls": true,
   "rewrites": [
     { "source": "/tracker", "destination": "/tracker.html" },
-    { "source": "/privacy", "destination": "/privacy.html" }
+    { "source": "/privacy", "destination": "/privacy.html" },
+    { "source": "/baseline", "destination": "/baseline.html" },
+    { "source": "/results", "destination": "/results.html" }
   ]
 }
