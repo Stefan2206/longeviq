@@ -128,9 +128,9 @@ nav {
 .hero-video {
   position: absolute; top: 50%; left: 50%;
   transform: translate(-50%, -50%);
-  /* Scale so video covers panel fully — no black bars */
-  width: 200%;
-  height: calc(200% * 16 / 9);
+  /* Fill panel width, let height overflow — clipped by overflow:hidden */
+  width: 100%;
+  height: calc(100vw * 0.5 * 16 / 9);
   min-height: 100%;
   pointer-events: none;
 }
