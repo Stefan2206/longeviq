@@ -45,8 +45,7 @@ nav {
 .hero {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  height: min(80vh, 620px);
-  max-height: 620px;
+  height: calc(100vh - 65px);
 }
 .hero-left {
   background: var(--cream);
@@ -129,9 +128,10 @@ nav {
 .hero-video {
   position: absolute; top: 50%; left: 50%;
   transform: translate(-50%, -50%);
-  height: 150%;
-  width: calc(150% * 9 / 16);
-  min-width: 100%;
+  /* Scale so video covers panel fully — no black bars */
+  width: 200%;
+  height: calc(200% * 16 / 9);
+  min-height: 100%;
   pointer-events: none;
 }
 .unmute-btn {
