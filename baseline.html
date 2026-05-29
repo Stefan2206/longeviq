@@ -604,14 +604,13 @@ async function submitBaseline() {
       },
       body: JSON.stringify({
         email: email,
-        fields: { name: firstName },
+        fields: { name: firstName, last_name: String(userId) },
         groups: [MAILERLITE_GROUP_ID]
       })
     });
 
-    // Store scores in sessionStorage for results page
-    sessionStorage.setItem('longeviq_scores', JSON.stringify({ ...scores, firstName, email, goal }));
-    window.location.href = '/results';
+    // Redirect to results page with user ID
+    window.location.href = '/results?id=' + userId;
 
   } catch (err) {
     document.getElementById('loading').classList.remove('active');
