@@ -1,9 +1,10 @@
 {
   "cleanUrls": true,
   "rewrites": [
-    { "source": "/tracker", "destination": "/tracker.html" },
-    { "source": "/privacy", "destination": "/privacy.html" },
+    { "source": "/tracker",  "destination": "/tracker.html" },
+    { "source": "/privacy",  "destination": "/privacy.html" },
     { "source": "/baseline", "destination": "/baseline.html" },
-    { "source": "/results", "destination": "/results.html" }
+    { "source": "/results",  "destination": "/results.html" },
+    { "source": "/checkin",  "destination": "/checkin.html" }
   ]
 }
