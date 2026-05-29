@@ -1,5 +1,7 @@
 {
+  "cleanUrls": true,
   "rewrites": [
-    { "source": "/tracker", "destination": "/tracker.html" }
+    { "source": "/tracker", "destination": "/tracker.html" },
+    { "source": "/privacy", "destination": "/privacy.html" }
   ]
 }
