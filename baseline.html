@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Your Baseline Scan — Longeviq</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --cream: #F2EDE6;
+  --warm-white: #FAF7F3;
+  --ink: #1A1714;
+  --ink-mid: #3D3830;
+  --ink-light: #6B6257;
+  --teal: #2D6A5A;
+  --teal-light: #3D8B72;
+  --teal-dark: #1E4D40;
+  --gold: #C9963A;
+  --border: #DDD5C8;
+  --serif: 'Playfair Display', Georgia, serif;
+  --sans: 'DM Sans', system-ui, sans-serif;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { background: var(--warm-white); color: var(--ink); font-family: var(--sans); font-weight: 300; line-height: 1.65; min-height: 100vh; }
+
+/* NAV */
+nav { display: flex; justify-content: space-between; align-items: center; padding: 1.25rem 4rem; background: var(--warm-white); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; }
+.nav-logo { font-family: var(--serif); font-size: 1.25rem; font-weight: 700; color: var(--ink); text-decoration: none; }
+.nav-back { font-size: 0.78rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-light); text-decoration: none; transition: color 0.2s; }
+.nav-back:hover { color: var(--teal); }
+
+/* PROGRESS */
+.progress-bar-wrap { width: 100%; height: 4px; background: var(--border); }
+.progress-bar { height: 100%; background: var(--teal); transition: width 0.4s ease; }
+
+/* HERO */
+.scan-hero { background: var(--cream); padding: 4rem; text-align: center; border-bottom: 1px solid var(--border); }
+.eyebrow { font-size: 0.72rem; font-weight: 500; letter-spacing: 0.22em; text-transform: uppercase; color: var(--teal); margin-bottom: 1rem; display: flex; align-items: center; justify-content: center; gap: 0.75rem; }
+.eyebrow::before, .eyebrow::after { content: ''; width: 24px; height: 1px; background: var(--teal); }
+.scan-hero h1 { font-family: var(--serif); font-size: clamp(2rem, 4vw, 3rem); font-weight: 900; color: var(--ink); margin-bottom: 1rem; line-height: 1.1; }
+.scan-hero h1 em { font-style: italic; color: var(--teal); }
+.scan-hero p { font-size: 1rem; color: var(--ink-mid); max-width: 500px; margin: 0 auto; line-height: 1.75; }
+.scan-meta { display: flex; justify-content: center; gap: 3rem; margin-top: 2.5rem; padding-top: 2rem; border-top: 1px solid var(--border); }
+.scan-meta-item { text-align: center; }
+.scan-meta-num { font-family: var(--serif); font-size: 1.8rem; font-weight: 700; color: var(--ink); display: block; line-height: 1; }
+.scan-meta-label { font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-light); margin-top: 0.25rem; display: block; }
+
+/* FORM CONTAINER */
+.form-container { max-width: 680px; margin: 0 auto; padding: 4rem 2rem; }
+
+/* STEP */
+.step { display: none; }
+.step.active { display: block; }
+
+.step-header { margin-bottom: 2.5rem; }
+.step-kpi-label { font-size: 0.7rem; font-weight: 500; letter-spacing: 0.2em; text-transform: uppercase; color: var(--teal); margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.6rem; }
+.step-kpi-label::before { content: ''; width: 20px; height: 1px; background: var(--teal); }
+.step-title { font-family: var(--serif); font-size: clamp(1.6rem, 3vw, 2.2rem); font-weight: 800; color: var(--ink); line-height: 1.1; margin-bottom: 0.75rem; }
+.step-title em { font-style: italic; color: var(--teal); }
+.step-desc { font-size: 0.92rem; color: var(--ink-light); line-height: 1.7; }
+
+/* QUESTIONS */
+.question { margin-bottom: 2rem; }
+.question-text { font-size: 1rem; font-weight: 400; color: var(--ink); margin-bottom: 1rem; line-height: 1.5; }
+.options { display: flex; flex-direction: column; gap: 0.6rem; }
+.option { display: flex; align-items: center; gap: 1rem; padding: 1rem 1.25rem; border: 1.5px solid var(--border); background: white; cursor: pointer; transition: all 0.18s; border-radius: 2px; }
+.option:hover { border-color: var(--teal); background: rgba(45,106,90,0.04); }
+.option.selected { border-color: var(--teal); background: rgba(45,106,90,0.08); }
+.option input[type="radio"] { display: none; }
+.option-dot { width: 18px; height: 18px; border-radius: 50%; border: 2px solid var(--border); flex-shrink: 0; transition: all 0.18s; display: flex; align-items: center; justify-content: center; }
+.option.selected .option-dot { border-color: var(--teal); background: var(--teal); }
+.option.selected .option-dot::after { content: ''; width: 6px; height: 6px; border-radius: 50%; background: white; }
+.option-text { font-size: 0.92rem; color: var(--ink-mid); line-height: 1.4; }
+.option.selected .option-text { color: var(--ink); font-weight: 400; }
+
+/* NAV BUTTONS */
+.step-nav { display: flex; justify-content: space-between; align-items: center; margin-top: 3rem; padding-top: 2rem; border-top: 1px solid var(--border); }
+.step-counter { font-size: 0.78rem; color: var(--ink-light); letter-spacing: 0.05em; }
+.btn-prev { background: transparent; border: 1px solid var(--border); color: var(--ink-light); padding: 0.9rem 1.75rem; font-family: var(--sans); font-size: 0.78rem; font-weight: 400; letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer; transition: all 0.2s; }
+.btn-prev:hover { border-color: var(--ink); color: var(--ink); }
+.btn-next { background: var(--ink); color: white; border: none; padding: 0.9rem 2rem; font-family: var(--sans); font-size: 0.78rem; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer; transition: all 0.2s; }
+.btn-next:hover { background: var(--teal); }
+.btn-next:disabled { background: var(--border); cursor: not-allowed; }
+
+/* CREDENTIALS STEP */
+.credentials-step { display: none; }
+.credentials-step.active { display: block; }
+.form-group { margin-bottom: 1.5rem; }
+.form-label { font-size: 0.75rem; font-weight: 500; letter-spacing: 0.15em; text-transform: uppercase; color: var(--ink-light); margin-bottom: 0.5rem; display: block; }
+.form-input { width: 100%; padding: 1rem 1.25rem; border: 1.5px solid var(--border); background: white; font-family: var(--sans); font-size: 0.95rem; color: var(--ink); transition: border-color 0.2s; outline: none; border-radius: 2px; }
+.form-input:focus { border-color: var(--teal); }
+.form-hint { font-size: 0.78rem; color: var(--ink-light); margin-top: 0.4rem; line-height: 1.5; }
+
+.privacy-note { background: var(--cream); border: 1px solid var(--border); padding: 1.25rem 1.5rem; margin: 1.5rem 0; display: flex; gap: 0.75rem; align-items: flex-start; }
+.privacy-note-text { font-size: 0.82rem; color: var(--ink-light); line-height: 1.6; }
+.privacy-note-text a { color: var(--teal); }
+
+.btn-submit { width: 100%; background: var(--teal); color: white; border: none; padding: 1.2rem 2rem; font-family: var(--sans); font-size: 0.85rem; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; cursor: pointer; transition: all 0.2s; margin-top: 1rem; }
+.btn-submit:hover { background: var(--teal-dark); }
+.btn-submit:disabled { background: var(--border); cursor: not-allowed; }
+
+/* ERROR */
+.error-msg { color: #C0392B; font-size: 0.82rem; margin-top: 0.4rem; display: none; }
+
+/* LOADING */
+.loading-overlay { display: none; position: fixed; inset: 0; background: rgba(250,247,243,0.95); z-index: 500; flex-direction: column; align-items: center; justify-content: center; gap: 1.5rem; }
+.loading-overlay.active { display: flex; }
+.spinner { width: 40px; height: 40px; border: 3px solid var(--border); border-top-color: var(--teal); border-radius: 50%; animation: spin 0.8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-text { font-family: var(--serif); font-size: 1.2rem; font-style: italic; color: var(--ink-mid); }
+
+@media (max-width: 768px) {
+  nav { padding: 1rem 1.5rem; }
+  .scan-hero { padding: 3rem 1.5rem; }
+  .form-container { padding: 3rem 1.5rem; }
+  .scan-meta { gap: 1.5rem; }
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="nav-logo">Longeviq</a>
+  <a href="/tracker" class="nav-back">← Back</a>
+</nav>
+
+<div class="progress-bar-wrap">
+  <div class="progress-bar" id="progress-bar" style="width: 10%"></div>
+</div>
+
+<div class="scan-hero">
+  <div class="eyebrow">Free Biological Age Scan</div>
+  <h1>Set your <em>baseline.</em></h1>
+  <p>Answer honestly — there are no right or wrong answers. Your results are calculated from your real responses and compared against longevity research benchmarks.</p>
+  <div class="scan-meta">
+    <div class="scan-meta-item"><span class="scan-meta-num">9</span><span class="scan-meta-label">KPIs assessed</span></div>
+    <div class="scan-meta-item"><span class="scan-meta-num">~4</span><span class="scan-meta-label">Minutes</span></div>
+    <div class="scan-meta-item"><span class="scan-meta-num">100%</span><span class="scan-meta-label">Free</span></div>
+  </div>
+</div>
+
+<div class="form-container">
+
+  <!-- STEP 1: SLEEP -->
+  <div class="step active" id="step-1">
+    <div class="step-header">
+      <div class="step-kpi-label">🌙 KPI 1 of 9 — Sleep Quality</div>
+      <h2 class="step-title">How well do you <em>sleep?</em></h2>
+      <p class="step-desc">Sleep is the master lever of biological ageing. It affects every other KPI on this list.</p>
+    </div>
+    <div class="question">
+      <div class="question-text">How many hours of sleep do you typically get per night?</div>
+      <div class="options" data-question="sleep_q1">
+        <label class="option"><input type="radio" name="sleep_q1" value="2"><span class="option-dot"></span><span class="option-text">Less than 5 hours</span></label>
+        <label class="option"><input type="radio" name="sleep_q1" value="4"><span class="option-dot"></span><span class="option-text">5–6 hours</span></label>
+        <label class="option"><input type="radio" name="sleep_q1" value="8"><span class="option-dot"></span><span class="option-text">7–8 hours</span></label>
+        <label class="option"><input type="radio" name="sleep_q1" value="6"><span class="option-dot"></span><span class="option-text">More than 9 hours</span></label>
+      </div>
+    </div>
+    <div class="question">
+      <div class="question-text">How do you feel when you wake up in the morning?</div>
+      <div class="options" data-question="sleep_q2">
+        <label class="option"><input type="radio" name="sleep_q2" value="2"><span class="option-dot"></span><span class="option-text">Exhausted — I need coffee immediately</span></label>
+        <label class="option"><input type="radio" name="sleep_q2" value="5"><span class="option-dot"></span><span class="option-text">Tired but functional after 30 minutes</span></label>
+        <label class="option"><input type="radio" name="sleep_q2" value="8"><span class="option-dot"></span><span class="option-text">Reasonably rested and ready to go</span></label>
+        <label class="option"><input type="radio" name="sleep_q2" value="10"><span class="option-dot"></span><span class="option-text">Refreshed and energised</span></label>
+      </div>
+    </div>
+    <div class="step-nav">
+      <span class="step-counter">Step 1 of 10</span>
+      <button class="btn-next" onclick="nextStep(1)" id="next-1">Next →</button>
+    </div>
+  </div>
+
+  <!-- STEP 2: ENERGY -->
+  <div class="step" id="step-2">
+    <div class="step-header">
+      <div class="step-kpi-label">⚡ KPI 2 of 9 — Energy Level</div>
+      <h2 class="step-title">How's your <em>energy?</em></h2>
+      <p class="step-desc">Daily energy reflects mitochondrial health and metabolic efficiency — both core markers of biological age.</p>
+    </div>
+    <div class="question">
+      <div class="question-text">How would you describe your energy levels on a typical afternoon (2–4pm)?</div>
+      <div class="options" data-question="energy_q1">
+        <label class="option"><input type="radio" name="energy_q1" value="2"><span class="option-dot"></span><span class="option-text">I crash hard and can barely function</span></label>
+        <label class="option"><input type="radio" name="energy_q1" value="5"><span class="option-dot"></span><span class="option-text">I feel noticeably sluggish and slow</span></label>
+        <label class="option"><input type="radio" name="energy_q1" value="7"><span class="option-dot"></span><span class="option-text">I feel okay but not at my best</span></label>
+        <label class="option"><input type="radio" name="energy_q1" value="10"><span class="option-dot"></span><span class="option-text">I feel consistently energised all day</span></label>
+      </div>
+    </div>
+    <div class="question">
+      <div class="question-text">How often do you rely on caffeine to get through the day?</div>
+      <div class="options" data-question="energy_q2">
+        <label class="option"><input type="radio" name="energy_q2" value="3"><span class="option-dot"></span><span class="option-text">Multiple times — I can't function without it</span></label>
+        <label class="option"><input type="radio" name="energy_q2" value="6"><span class="option-dot"></span><span class="option-text">Once in the morning as a routine</span></label>
+        <label class="option"><input type="radio" name="energy_q2" value="8"><span class="option-dot"></span><span class="option-text">Occasionally, not as a necessity</span></label>
+        <label class="option"><input type="radio" name="energy_q2" value="10"><span class="option-dot"></span><span class="option-text">Rarely or never</span></label>
+      </div>
+    </div>
+    <div class="step-nav">
+      <button class="btn-prev" onclick="prevStep(2)">← Back</button>
+      <span class="step-counter">Step 2 of 10</span>
+      <button class="btn-next" onclick="nextStep(2)">Next →</button>
+    </div>
+  </div>
+
+  <!-- STEP 3: COGNITIVE -->
+  <div class="step" id="step-3">
+    <div class="step-header">
+      <div class="step-kpi-label">🧠 KPI 3 of 9 — Cognitive Sharpness</div>
+      <h2 class="step-title">How sharp is your <em>mind?</em></h2>
+      <p class="step-desc">Cognitive performance is an early indicator of brain ageing. Lancet 2024: 45% of dementia cases are preventable.</p>
+    </div>
+    <div class="question">
+      <div class="question-text">How would you rate your ability to focus for extended periods?</div>
+      <div class="options" data-question="cognitive_q1">
+        <label class="option"><input type="radio" name="cognitive_q1" value="2"><span class="option-dot"></span><span class="option-text">I struggle to focus for more than 10 minutes</span></label>
+        <label class="option"><input type="radio" name="cognitive_q1" value="5"><span class="option-dot"></span><span class="option-text">I can focus but get distracted often</span></label>
+        <label class="option"><input type="radio" name="cognitive_q1" value="8"><span class="option-dot"></span><span class="option-text">I can focus well for 30–60 minutes</span></label>
+        <label class="option"><input type="radio" name="cognitive_q1" value="10"><span class="option-dot"></span><span class="option-text">I can focus deeply for hours without effort</span></label>
+      </div>
+    </div>
+    <div class="question">
+      <div class="question-text">How often do you experience brain fog or mental slowness?</div>
+      <div class="options" data-question="cognitive_q2">
+        <label class="option"><input type="radio" name="cognitive_q2" value="2"><span class="option-dot"></span><span class="option-text">Daily — it's a significant issue</span></label>
+        <label class="option"><input type="radio" name="cognitive_q2" value="5"><span class="option-dot"></span><span class="option-text">Several times a week</span></label>
+        <label class="option"><input type="radio" name="cognitive_q2" value="8"><span class="option-dot"></span><span class="option-text">Occasionally, maybe once a week</span></label>
+        <label class="option"><input type="radio" name="cognitive_q2" value="10"><span class="option-dot"></span><span class="option-text">Rarely or never</span></label>
+      </div>
+    </div>
+    <div class="step-nav">
+      <button class="btn-prev" onclick="prevStep(3)">← Back</button>
+      <span class="step-counter">Step 3 of 10</span>
+      <button class="btn-next" onclick="nextStep(3)">Next →</button>
+    </div>
+  </div>
+
+  <!-- STEP 4: GRIP STRENGTH -->
+  <div class="step" id="step-4">
+    <div class="step-header">
+      <div class="step-kpi-label">✊ KPI 4 of 9 — Grip Strength</div>
+      <h2 class="step-title">How strong are <em>you?</em></h2>
+      <p class="step-desc">Grip strength is one of the strongest predictors of longevity and all-cause mortality — better than BMI or cholesterol.</p>
+    </div>
+    <div class="question">
+      <div class="question-text">How would you describe your overall hand and forearm strength?</div>
+      <div class="options" data-question="grip_q1">
+        <label class="option"><input type="radio" name="grip_q1" value="2"><span class="option-dot"></span><span class="option-text">Weak — I struggle with jars, bottles, or heavy bags</span></label>
+        <label class="option"><input type="radio" name="grip_q1" value="5"><span class="option-dot"></span><span class="option-text">Average — I manage but it's not easy</span></label>
+        <label class="option"><input type="radio" name="grip_q1" value="8"><span class="option-dot"></span><span class="option-text">Good — I rarely have issues with grip tasks</span></label>
+        <label class="option"><input type="radio" name="grip_q1" value="10"><span class="option-dot"></span><span class="option-text">Strong — I train regularly and grip is never an issue</span></label>
+      </div>
+    </div>
+    <div class="question">
+      <div class="question-text">How often do you do strength or resistance training?</div>
+      <div class="options" data-question="grip_q2">
+        <label class="option"><input type="radio" name="grip_q2" value="2"><span class="option-dot"></span><span class="option-text">Never</span></label>
+        <label class="option"><input type="radio" name="grip_q2" value="5"><span class="option-dot"></span><span class="option-text">Once or twice a month</span></label>
+        <label class="option"><input type="radio" name="grip_q2" value="7"><span class="option-dot"></span><span class="option-text">Once or twice a week</span></label>
+        <label class="option"><input type="radio" name="grip_q2" value="10"><span class="option-dot"></span><span class="option-text">3 or more times a week</span></label>
+      </div>
+    </div>
+    <div class="step-nav">
+      <button class="btn-prev" onclick="prevStep(4)">← Back</button>
+      <span class="step-counter">Step 4 of 10</span>
+      <button class="btn-next" onclick="nextStep(4)">Next →</button>
+    </div>
+  </div>
+
+  <!-- STEP 5: HEART RATE -->
+  <div class="step" id="step-5">
+    <div class="step-header">
+      <div class="step-kpi-label">❤️ KPI 5 of 9 — Resting Heart Rate</div>
+      <h2 class="step-title">How's your <em>heart?</em></h2>
+      <p class="step-desc">Resting heart rate is a direct window into cardiovascular fitness and autonomic nervous system health.</p>
+    </div>
+    <div class="question">
+      <div class="question-text">Do you know your resting heart rate? (Check your phone health app, smartwatch, or measure manually)</div>
+      <div class="options" data-question="hr_q1">
+        <label class="option"><input type="radio" name="hr_q1" value="10"><span class="option-dot"></span><span class="option-text">Under 55 bpm — athlete level</span></label>
+        <label class="option"><input type="radio" name="hr_q1" value="8"><span class="option-dot"></span><span class="option-text">55–65 bpm — excellent</span></label>
+        <label class="option"><input type="radio" name="hr_q1" value="6"><span class="option-dot"></span><span class="option-text">66–75 bpm — average</span></label>
+        <label class="option"><input type="radio" name="hr_q1" value="4"><span class="option-dot"></span><span class="option-text">76–85 bpm — above average</span></label>
+        <label class="option"><input type="radio" name="hr_q1" value="2"><span class="option-dot"></span><span class="option-text">Above 85 bpm — high</span></label>
+        <label class="option"><input type="radio" name="hr_q1" value="5"><span class="option-dot"></span><span class="option-text">I don't know</span></label>
+      </div>
+    </div>
+    <div class="question">
+      <div class="question-text">How would you describe your cardiovascular fitness?</div>
+      <div class="options" data-question="hr_q2">
+        <label class="option"><input type="radio" name="hr_q2" value="2"><span class="option-dot"></span><span class="option-text">I get winded climbing stairs</span></label>
+        <label class="option"><input type="radio" name="hr_q2" value="5"><span class="option-dot"></span><span class="option-text">I can walk briskly but not much more</span></label>
+        <label class="option"><input type="radio" name="hr_q2" value="7"><span class="option-dot"></span><span class="option-text">I can jog or cycle comfortably</span></label>
+        <label class="option"><input type="radio" name="hr_q2" value="10"><span class="option-dot"></span><span class="option-text">I train regularly and have strong cardio</span></label>
+      </div>
+    </div>
+    <div class="step-nav">
+      <button class="btn-prev" onclick="prevStep(5)">← Back</button>
+      <span class="step-counter">Step 5 of 10</span>
+      <button class="btn-next" onclick="nextStep(5)">Next →</button>
+    </div>
+  </div>
+
+  <!-- STEP 6: WAIST -->
+  <div class="step" id="step-6">
+    <div class="step-header">
+      <div class="step-kpi-label">📏 KPI 6 of 9 — Waist Circumference</div>
+      <h2 class="step-title">Your <em>metabolic</em> health.</h2>
+      <p class="step-desc">Visceral fat is more predictive of metabolic disease and cardiovascular risk than BMI alone.</p>
+    </div>
+    <div class="question">
+      <div class="question-text">What is your approximate waist circumference? (Measure at navel level)</div>
+      <div class="options" data-question="waist_q1">
+        <label class="option"><input type="radio" name="waist_q1" value="10"><span class="option-dot"></span><span class="option-text">Under 80cm / 31" (women) or under 90cm / 35" (men)</span></label>
+        <label class="option"><input type="radio" name="waist_q1" value="7"><span class="option-dot"></span><span class="option-text">80–90cm / 31–35" (women) or 90–100cm / 35–39" (men)</span></label>
+        <label class="option"><input type="radio" name="waist_q1" value="4"><span class="option-dot"></span><span class="option-text">90–100cm / 35–39" (women) or 100–110cm / 39–43" (men)</span></label>
+        <label class="option"><input type="radio" name="waist_q1" value="2"><span class="option-dot"></span><span class="option-text">Above 100cm / 39" (women) or above 110cm / 43" (men)</span></label>
+        <label class="option"><input type="radio" name="waist_q1" value="5"><span class="option-dot"></span><span class="option-text">I'm not sure</span></label>
+      </div>
+    </div>
+    <div class="question">
+      <div class="question-text">How would you describe changes in your body composition over the past 2 years?</div>
+      <div class="options" data-question="waist_q2">
+        <label class="option"><input type="radio" name="waist_q2" value="2"><span class="option-dot"></span><span class="option-text">I've gained significant weight, especially around the middle</span></label>
+        <label class="option"><input type="radio" name="waist_q2" value="5"><span class="option-dot"></span><span class="option-text">Slight increase, nothing dramatic</span></label>
+        <label class="option"><input type="radio" name="waist_q2" value="8"><span class="option-dot"></span><span class="option-text">About the same</span></label>
+        <label class="option"><input type="radio" name="waist_q2" value="10"><span class="option-dot"></span><span class="option-text">I've improved my body composition</span></label>
+      </div>
+    </div>
+    <div class="step-nav">
+      <button class="btn-prev" onclick="prevStep(6)">← Back</button>
+      <span class="step-counter">Step 6 of 10</span>
+      <button class="btn-next" onclick="nextStep(6)">Next →</button>
+    </div>
+  </div>
+
+  <!-- STEP 7: MOOD -->
+  <div class="step" id="step-7">
+    <div class="step-header">
+      <div class="step-kpi-label">🧘 KPI 7 of 9 — Mood & Resilience</div>
+      <h2 class="step-title">How resilient <em>are you?</em></h2>
+      <p class="step-desc">Chronic stress accelerates biological ageing at the cellular level. Social isolation carries mortality risk equivalent to 15 cigarettes a day.</p>
+    </div>
+    <div class="question">
+      <div class="question-text">How would you describe your overall mood and emotional wellbeing?</div>
+      <div class="options" data-question="mood_q1">
+        <label class="option"><input type="radio" name="mood_q1" value="2"><span class="option-dot"></span><span class="option-text">I feel anxious, low, or stressed most of the time</span></label>
+        <label class="option"><input type="radio" name="mood_q1" value="5"><span class="option-dot"></span><span class="option-text">I have good days and bad days, often stressed</span></label>
+        <label class="option"><input type="radio" name="mood_q1" value="8"><span class="option-dot"></span><span class="option-text">Generally positive with manageable stress</span></label>
+        <label class="option"><input type="radio" name="mood_q1" value="10"><span class="option-dot"></span><span class="option-text">I feel calm, resilient, and emotionally balanced</span></label>
+      </div>
+    </div>
+    <div class="question">
+      <div class="question-text">How quickly do you recover from stressful events or setbacks?</div>
+      <div class="options" data-question="mood_q2">
+        <label class="option"><input type="radio" name="mood_q2" value="2"><span class="option-dot"></span><span class="option-text">I struggle to recover and it affects me for days</span></label>
+        <label class="option"><input type="radio" name="mood_q2" value="5"><span class="option-dot"></span><span class="option-text">It takes me a while but I get there</span></label>
+        <label class="option"><input type="radio" name="mood_q2" value="8"><span class="option-dot"></span><span class="option-text">I bounce back within a day or two</span></label>
+        <label class="option"><input type="radio" name="mood_q2" value="10"><span class="option-dot"></span><span class="option-text">I recover quickly and rarely dwell on setbacks</span></label>
+      </div>
+    </div>
+    <div class="step-nav">
+      <button class="btn-prev" onclick="prevStep(7)">← Back</button>
+      <span class="step-counter">Step 7 of 10</span>
+      <button class="btn-next" onclick="nextStep(7)">Next →</button>
+    </div>
+  </div>
+
+  <!-- STEP 8: PHYSICAL STRENGTH -->
+  <div class="step" id="step-8">
+    <div class="step-header">
+      <div class="step-kpi-label">🏋️ KPI 8 of 9 — Physical Strength</div>
+      <h2 class="step-title">How strong is your <em>body?</em></h2>
+      <p class="step-desc">Muscle is the organ of longevity. It drives metabolic rate, injury prevention, and hormonal health into your 60s.</p>
+    </div>
+    <div class="question">
+      <div class="question-text">How many times per week do you engage in vigorous physical activity?</div>
+      <div class="options" data-question="strength_q1">
+        <label class="option"><input type="radio" name="strength_q1" value="1"><span class="option-dot"></span><span class="option-text">Never — I'm mostly sedentary</span></label>
+        <label class="option"><input type="radio" name="strength_q1" value="4"><span class="option-dot"></span><span class="option-text">1–2 times per week</span></label>
+        <label class="option"><input type="radio" name="strength_q1" value="7"><span class="option-dot"></span><span class="option-text">3–4 times per week</span></label>
+        <label class="option"><input type="radio" name="strength_q1" value="10"><span class="option-dot"></span><span class="option-text">5 or more times per week</span></label>
+      </div>
+    </div>
+    <div class="question">
+      <div class="question-text">How would you rate your functional strength (carrying groceries, moving furniture, physical tasks)?</div>
+      <div class="options" data-question="strength_q2">
+        <label class="option"><input type="radio" name="strength_q2" value="2"><span class="option-dot"></span><span class="option-text">I struggle with physical tasks that others find easy</span></label>
+        <label class="option"><input type="radio" name="strength_q2" value="5"><span class="option-dot"></span><span class="option-text">I manage but get tired quickly</span></label>
+        <label class="option"><input type="radio" name="strength_q2" value="8"><span class="option-dot"></span><span class="option-text">I handle most physical tasks comfortably</span></label>
+        <label class="option"><input type="radio" name="strength_q2" value="10"><span class="option-dot"></span><span class="option-text">I feel strong and physically capable</span></label>
+      </div>
+    </div>
+    <div class="step-nav">
+      <button class="btn-prev" onclick="prevStep(8)">← Back</button>
+      <span class="step-counter">Step 8 of 10</span>
+      <button class="btn-next" onclick="nextStep(8)">Next →</button>
+    </div>
+  </div>
+
+  <!-- STEP 9: RECOVERY -->
+  <div class="step" id="step-9">
+    <div class="step-header">
+      <div class="step-kpi-label">🔄 KPI 9 of 9 — Recovery Speed</div>
+      <h2 class="step-title">How fast do you <em>recover?</em></h2>
+      <p class="step-desc">Recovery speed is a direct measure of systemic resilience and biological age.</p>
+    </div>
+    <div class="question">
+      <div class="question-text">After a hard workout or physical exertion, how long does it take to feel fully recovered?</div>
+      <div class="options" data-question="recovery_q1">
+        <label class="option"><input type="radio" name="recovery_q1" value="2"><span class="option-dot"></span><span class="option-text">3+ days — I'm often sore for a long time</span></label>
+        <label class="option"><input type="radio" name="recovery_q1" value="5"><span class="option-dot"></span><span class="option-text">1–2 days</span></label>
+        <label class="option"><input type="radio" name="recovery_q1" value="8"><span class="option-dot"></span><span class="option-text">Less than a day</span></label>
+        <label class="option"><input type="radio" name="recovery_q1" value="10"><span class="option-dot"></span><span class="option-text">I recover very quickly — within hours</span></label>
+      </div>
+    </div>
+    <div class="question">
+      <div class="question-text">When you get sick (cold, flu), how quickly do you typically recover?</div>
+      <div class="options" data-question="recovery_q2">
+        <label class="option"><input type="radio" name="recovery_q2" value="2"><span class="option-dot"></span><span class="option-text">It knocks me out for 2+ weeks</span></label>
+        <label class="option"><input type="radio" name="recovery_q2" value="5"><span class="option-dot"></span><span class="option-text">About a week — average</span></label>
+        <label class="option"><input type="radio" name="recovery_q2" value="8"><span class="option-dot"></span><span class="option-text">3–5 days</span></label>
+        <label class="option"><input type="radio" name="recovery_q2" value="10"><span class="option-dot"></span><span class="option-text">I rarely get sick and recover fast when I do</span></label>
+      </div>
+    </div>
+    <div class="step-nav">
+      <button class="btn-prev" onclick="prevStep(9)">← Back</button>
+      <span class="step-counter">Step 9 of 10</span>
+      <button class="btn-next" onclick="nextStep(9)">Next →</button>
+    </div>
+  </div>
+
+  <!-- STEP 10: CREDENTIALS -->
+  <div class="step" id="step-10">
+    <div class="step-header">
+      <div class="step-kpi-label">✓ Almost there</div>
+      <h2 class="step-title">Where shall we send your <em>results?</em></h2>
+      <p class="step-desc">Enter your details to receive your biological age score and start your 30-day protocol. We'll also send you weekly check-in reminders.</p>
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="first_name">First Name</label>
+      <input type="text" id="first_name" class="form-input" placeholder="Your first name" autocomplete="given-name">
+      <div class="error-msg" id="err-name">Please enter your first name</div>
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="email">Email Address</label>
+      <input type="email" id="email" class="form-input" placeholder="your@email.com" autocomplete="email">
+      <div class="error-msg" id="err-email">Please enter a valid email address</div>
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="goal">Your Primary Goal</label>
+      <select id="goal" class="form-input">
+        <option value="">Select your primary goal</option>
+        <option value="energy">Increase energy & beat fatigue</option>
+        <option value="sleep">Improve sleep quality</option>
+        <option value="cognition">Sharpen focus & cognition</option>
+        <option value="weight">Improve body composition</option>
+        <option value="longevity">Extend healthspan & longevity</option>
+        <option value="performance">Optimise athletic performance</option>
+      </select>
+    </div>
+    <div class="privacy-note">
+      <span style="font-size:1rem;">🔒</span>
+      <div class="privacy-note-text">Your data is stored securely and never sold. You can unsubscribe or request deletion at any time. Read our <a href="/privacy">Privacy Policy</a>.</div>
+    </div>
+    <button class="btn-submit" onclick="submitBaseline()" id="submit-btn">Calculate my biological age →</button>
+    <div class="step-nav" style="border-top: none; margin-top: 1rem;">
+      <button class="btn-prev" onclick="prevStep(10)">← Back</button>
+      <span class="step-counter">Step 10 of 10</span>
+      <span></span>
+    </div>
+  </div>
+
+</div>
+
+<!-- LOADING -->
+<div class="loading-overlay" id="loading">
+  <div class="spinner"></div>
+  <div class="loading-text">Calculating your biological age...</div>
+</div>
+
+<script>
+const SUPABASE_URL = 'https://hmbpklevxycqcwoscxpq.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_5axZNrPpg8Qgs1xx9cEcqQ_C0b7qfwG';
+const MAILERLITE_GROUP_ID = '152892328357742659';
+
+let currentStep = 1;
+const totalSteps = 10;
+const answers = {};
+
+// Handle option selection
+document.querySelectorAll('.options').forEach(optionGroup => {
+  optionGroup.querySelectorAll('.option').forEach(option => {
+    option.addEventListener('click', function() {
+      const name = this.querySelector('input').name;
+      optionGroup.querySelectorAll('.option').forEach(o => o.classList.remove('selected'));
+      this.classList.add('selected');
+      this.querySelector('input').checked = true;
+      answers[name] = parseInt(this.querySelector('input').value);
+    });
+  });
+});
+
+function updateProgress() {
+  const pct = (currentStep / totalSteps) * 100;
+  document.getElementById('progress-bar').style.width = pct + '%';
+}
+
+function nextStep(from) {
+  // Validate all questions in current step are answered
+  const step = document.getElementById('step-' + from);
+  const questionGroups = step.querySelectorAll('.options');
+  let allAnswered = true;
+  questionGroups.forEach(group => {
+    const name = group.dataset.question;
+    if (!answers[name] && answers[name] !== 0) allAnswered = false;
+  });
+  if (!allAnswered) {
+    alert('Please answer all questions before continuing.');
+    return;
+  }
+  document.getElementById('step-' + from).classList.remove('active');
+  currentStep = from + 1;
+  document.getElementById('step-' + currentStep).classList.add('active');
+  updateProgress();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function prevStep(from) {
+  document.getElementById('step-' + from).classList.remove('active');
+  currentStep = from - 1;
+  document.getElementById('step-' + currentStep).classList.add('active');
+  updateProgress();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function calculateScores() {
+  const sleep = Math.round((answers.sleep_q1 + answers.sleep_q2) / 2);
+  const energy = Math.round((answers.energy_q1 + answers.energy_q2) / 2);
+  const cognitive = Math.round((answers.cognitive_q1 + answers.cognitive_q2) / 2);
+  const grip = Math.round((answers.grip_q1 + answers.grip_q2) / 2);
+  const hr = Math.round((answers.hr_q1 + answers.hr_q2) / 2);
+  const waist = Math.round((answers.waist_q1 + answers.waist_q2) / 2);
+  const mood = Math.round((answers.mood_q1 + answers.mood_q2) / 2);
+  const strength = Math.round((answers.strength_q1 + answers.strength_q2) / 2);
+  const recovery = Math.round((answers.recovery_q1 + answers.recovery_q2) / 2);
+  const overall = Math.round((sleep + energy + cognitive + grip + hr + waist + mood + strength + recovery) / 9);
+  return { sleep, energy, cognitive_sharpness: cognitive, grip_strength: grip, resting_heart_rate: hr, waist_circumference: waist, mood_resilience: mood, physical_strength: strength, recovery_speed: recovery, overall };
+}
+
+async function submitBaseline() {
+  const firstName = document.getElementById('first_name').value.trim();
+  const email = document.getElementById('email').value.trim();
+  const goal = document.getElementById('goal').value;
+
+  // Validate
+  let valid = true;
+  if (!firstName) { document.getElementById('err-name').style.display = 'block'; valid = false; } else { document.getElementById('err-name').style.display = 'none'; }
+  if (!email || !email.includes('@')) { document.getElementById('err-email').style.display = 'block'; valid = false; } else { document.getElementById('err-email').style.display = 'none'; }
+  if (!valid) return;
+
+  document.getElementById('loading').classList.add('active');
+
+  const scores = calculateScores();
+
+  // Save to Supabase
+  try {
+    const response = await fetch(SUPABASE_URL + '/rest/v1/users', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': SUPABASE_KEY,
+        'Authorization': 'Bearer ' + SUPABASE_KEY,
+        'Prefer': 'return=representation'
+      },
+      body: JSON.stringify({
+        first_name: firstName,
+        email: email,
+        goal: goal,
+        sleep_quality: scores.sleep,
+        energy_level: scores.energy,
+        cognitive_sharpness: scores.cognitive_sharpness,
+        grip_strength: scores.grip_strength,
+        resting_heart_rate: scores.resting_heart_rate,
+        waist_circumference: scores.waist_circumference,
+        mood_resilience: scores.mood_resilience,
+        physical_strength: scores.physical_strength,
+        recovery_speed: scores.recovery_speed
+      })
+    });
+
+    const data = await response.json();
+    const userId = data[0]?.id;
+
+    // Add to MailerLite
+    await fetch('https://connect.mailerlite.com/api/subscribers', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiI0IiwianRpIjoiYzFjZWYyMzk5NmUzMDc0N2ExMzJiZjZlOTlkZmU5YjY4MGM5YTE1ZWQ5NTlhNzc0OGJkNzZmMjM1MDZlMGJmYTY2NDFkYzljMTM5MTMzMzkiLCJpYXQiOjE3NDgzNTgxOTUuMzUxNTg2LCJuYmYiOjE3NDgzNTgxOTUuMzUxNTg5LCJleHAiOjQ5MDQwMzE3OTUuMzQ4NjI2LCJzdWIiOiIyMzg2MTE1Iiwic2NvcGVzIjpbXX0.placeholder'
+      },
+      body: JSON.stringify({
+        email: email,
+        fields: { name: firstName },
+        groups: [MAILERLITE_GROUP_ID]
+      })
+    });
+
+    // Store scores in sessionStorage for results page
+    sessionStorage.setItem('longeviq_scores', JSON.stringify({ ...scores, firstName, email, goal }));
+    window.location.href = '/results';
+
+  } catch (err) {
+    document.getElementById('loading').classList.remove('active');
+    alert('Something went wrong. Please try again.');
+    console.error(err);
+  }
+}
+
+updateProgress();
+</script>
+
+</body>
+</html>
