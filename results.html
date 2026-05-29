@@ -163,6 +163,9 @@ footer { background: #100F0D; padding: 3rem 4rem; display: flex; justify-content
 </footer>
 
 <script>
+const SUPABASE_URL = 'https://hmbpklevxycqcwoscxpq.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_5axZNrPpg8Qgs1xx9cEcqQ_C0b7qfwG';
+
 const kpiMeta = {
   sleep: { icon: '🌙', name: 'Sleep Quality', feedbackHigh: 'Excellent sleep hygiene. This is your foundation — keep protecting it.', feedbackMid: 'Room to improve. Prioritise sleep consistency and wind-down routines.', feedbackLow: 'This is your #1 priority. Poor sleep accelerates every other ageing marker.' },
   energy: { icon: '⚡', name: 'Energy Level', feedbackHigh: 'Strong metabolic health. Your mitochondria are performing well.', feedbackMid: 'Some afternoon dips. Focus on meal timing, light exposure, and movement.', feedbackLow: 'Low energy is a key signal. Address sleep, nutrition, and movement first.' },
@@ -188,50 +191,53 @@ function getScoreContext(overall) {
   return '<strong>This is your wake-up call.</strong> The data shows real risk — but every one of these markers is reversible with the right protocol. Start today.';
 }
 
-window.addEventListener('load', () => {
-  const raw = sessionStorage.getItem('longeviq_scores');
-  if (!raw) {
-    document.getElementById('result-greeting').textContent = 'Complete the baseline scan to see your results';
-    document.getElementById('overall-score').textContent = '—';
-    document.getElementById('score-context').textContent = 'No results found. Please complete the baseline questionnaire.';
+async function loadResults() {
+  const params = new URLSearchParams(window.location.search);
+  const userId = params.get('id');
+
+  if (!userId) {
+    document.getElementById('result-greeting').textContent = 'No results found';
+    document.getElementById('overall-score').textContent = '-';
+    document.getElementById('score-context').textContent = 'Please complete the baseline questionnaire first.';
     return;
   }
 
-  const data = JSON.parse(raw);
-  const { firstName, overall } = data;
+  try {
+    const response = await fetch(SUPABASE_URL + '/rest/v1/users?id=eq.' + userId + '&select=*', {
+      headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY }
+    });
+    const rows = await response.json();
+    if (!rows || rows.length === 0) {
+      document.getElementById('score-context').textContent = 'Results not found.';
+      return;
+    }
+    const data = rows[0];
+    const kpiDbKeys = ['sleep_quality','energy_level','cognitive_sharpness','grip_strength','resting_heart_rate','waist_circumference','mood_resilience','physical_strength','recovery_speed'];
+    const kpiMetaKeys = ['sleep','energy','cognitive_sharpness','grip_strength','resting_heart_rate','waist_circumference','mood_resilience','physical_strength','recovery_speed'];
+    const overall = Math.round(kpiDbKeys.reduce((s,k) => s + (data[k]||0), 0) / kpiDbKeys.length);
+    document.getElementById('result-greeting').textContent = data.first_name ? 'Hi ' + data.first_name + ', here are your results' : 'Your results are ready';
+    document.getElementById('overall-score').textContent = overall;
+    document.getElementById('score-context').innerHTML = getScoreContext(overall);
+    setTimeout(() => { document.getElementById('overall-bar').style.width = (overall*10)+'%'; }, 300);
+    const grid = document.getElementById('kpi-grid');
+    kpiDbKeys.forEach((key, i) => {
+      const score = data[key] || 0;
+      const meta = kpiMeta[kpiMetaKeys[i]];
+      const cls = getScoreClass(score);
+      const feedback = cls==='high' ? meta.feedbackHigh : cls==='mid' ? meta.feedbackMid : meta.feedbackLow;
+      const card = document.createElement('div');
+      card.className = 'kpi-card';
+      card.innerHTML = '<div class="kpi-card-header"><div class="kpi-icon-name"><span class="kpi-icon">' + meta.icon + '</span><span class="kpi-name">' + meta.name + '</span></div><span class="kpi-score-badge score-' + cls + '">' + score + '</span></div><div class="kpi-bar-wrap"><div class="kpi-bar bar-' + cls + '" style="width:0%" id="bar-' + i + '"></div></div><div class="kpi-feedback">' + feedback + '</div>';
+      grid.appendChild(card);
+      setTimeout(() => { document.getElementById('bar-'+i).style.width = (score*10)+'%'; }, 300+i*80);
+    });
+  } catch(err) {
+    document.getElementById('score-context').textContent = 'Error loading results.';
+    console.error(err);
+  }
+}
 
-  document.getElementById('result-greeting').textContent = firstName ? 'Hi ' + firstName + ', here are your results' : 'Your results are ready';
-  document.getElementById('overall-score').textContent = overall;
-  document.getElementById('score-context').innerHTML = getScoreContext(overall);
-
-  setTimeout(() => {
-    document.getElementById('overall-bar').style.width = (overall * 10) + '%';
-  }, 300);
-
-  const kpiKeys = ['sleep', 'energy', 'cognitive_sharpness', 'grip_strength', 'resting_heart_rate', 'waist_circumference', 'mood_resilience', 'physical_strength', 'recovery_speed'];
-  const grid = document.getElementById('kpi-grid');
-
-  kpiKeys.forEach((key, i) => {
-    const score = data[key];
-    const meta = kpiMeta[key];
-    const cls = getScoreClass(score);
-    const feedback = cls === 'high' ? meta.feedbackHigh : cls === 'mid' ? meta.feedbackMid : meta.feedbackLow;
-    const card = document.createElement('div');
-    card.className = 'kpi-card';
-    card.innerHTML = `
-      <div class="kpi-card-header">
-        <div class="kpi-icon-name">
-          <span class="kpi-icon">${meta.icon}</span>
-          <span class="kpi-name">${meta.name}</span>
-        </div>
-        <span class="kpi-score-badge score-${cls}">${score}</span>
-      </div>
-      <div class="kpi-bar-wrap"><div class="kpi-bar bar-${cls}" style="width:0%" id="bar-${i}"></div></div>
-      <div class="kpi-feedback">${feedback}</div>
-    `;
-    grid.appendChild(card);
-    setTimeout(() => { document.getElementById('bar-' + i).style.width = (score * 10) + '%'; }, 300 + i * 80);
-  });
+window.addEventListener('load', loadResults /* REPLACED */);
 });
 </script>
 </body>
