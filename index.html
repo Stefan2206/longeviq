@@ -48,11 +48,12 @@ nav {
 }
 .hero-left {
   background: var(--cream);
-  padding: 6rem 5rem 5rem;
+  padding: 6rem 10vw 5rem;
   display: flex; flex-direction: column; justify-content: center;
   position: relative;
   overflow: hidden;
   width: 100%;
+  box-sizing: border-box;
 }
 .hero-left::before {
   content: '';
@@ -123,14 +124,19 @@ nav {
 .hero-right {
   position: relative; overflow: hidden; background: var(--cream);
   width: 100%;
-  height: 56.25vw; /* 16:9 ratio for full width */
-  max-height: 600px;
+  height: 56.25vw; /* 16:9 ratio */
+  max-height: 620px;
+  min-height: 380px;
 }
 .hero-video-wrap {
   position: relative; width: 100%; height: 100%;
+  background: var(--cream);
 }
 .hero-video {
-  position: absolute; top: 0; left: 0;
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  /* Scale up slightly to hide any letterbox bars */
   width: 100%;
   height: 100%;
   pointer-events: none;
@@ -434,7 +440,6 @@ footer {
     <p class="hero-sub">Find out where you really stand in 3 minutes — then follow the science-backed 30-day protocol that moves the markers that matter.</p>
     <div class="hero-cta-group">
       <a href="/baseline" class="btn-primary">Take the free scan →</a>
-      <a href="#how" class="btn-ghost">See how it works ↓</a>
     </div>
     <div class="hero-trust">
       <div class="trust-item">
