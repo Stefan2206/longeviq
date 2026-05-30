@@ -123,7 +123,7 @@ nav {
 .hero-right {
   position: relative;
   width: 100%;
-  padding-top: 47.8%; /* 56.25% × 0.85 = ~15% smaller, keeps 16:9 */
+  padding-top: 47.8%;
   overflow: hidden;
   background: var(--cream);
 }
@@ -131,6 +131,7 @@ nav {
   position: absolute;
   top: 0; left: 0;
   width: 100%; height: 100%;
+  background: var(--cream);
 }
 .hero-video {
   position: absolute;
@@ -140,6 +141,7 @@ nav {
   height: 100%;
   transform: translate(-50%, -50%);
   pointer-events: none;
+  background: var(--cream);
 }
 .unmute-btn {
   position: absolute; bottom: 1.5rem; right: 1.5rem; z-index: 10;
@@ -468,7 +470,7 @@ footer {
         frameborder="0"
         allow="autoplay; encrypted-media"
         allowfullscreen
-        style="border:0; background:transparent;"
+        style="border:0; background:#F2EDE6;"
       ></iframe>
       <button class="unmute-btn" id="unmute-btn" onclick="toggleMute()" title="Unmute video">
         <svg id="icon-muted" viewBox="0 0 24 24" fill="none" stroke="var(--teal)" stroke-width="2" stroke-linecap="round">
