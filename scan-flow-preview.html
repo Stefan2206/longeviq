@@ -42,11 +42,10 @@
   .trust-item { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--ink-light); }
   .trust-item .dot { width: 6px; height: 6px; background: var(--gold); border-radius: 50%; flex-shrink: 0; }
 
-  .video-wrap { position: relative; border-radius: 20px; overflow: hidden; box-shadow: 0 24px 60px rgba(0,0,0,0.15); background: #000; aspect-ratio: 9/16; max-height: 500px; }
-  .video-wrap iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
-  .video-wrap::before, .video-wrap::after { content: ''; position: absolute; left: 0; right: 0; height: 10%; background: var(--cream); z-index: 2; pointer-events: none; }
-  .video-wrap::before { top: 0; }
-  .video-wrap::after { bottom: 0; }
+  .video-wrap { position: relative; border-radius: 20px; overflow: hidden; box-shadow: 0 24px 60px rgba(0,0,0,0.18); background: #000; aspect-ratio: 9/16; max-height: 575px; }
+  .video-wrap iframe { position: absolute; top: -8%; left: -5%; width: 110%; height: 116%; border: none; }
+  .mute-btn { position: absolute; bottom: 16px; right: 16px; z-index: 10; background: rgba(255,255,255,0.15); backdrop-filter: blur(8px); border: 1.5px solid rgba(255,255,255,0.35); color: #fff; border-radius: 50%; width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background 0.2s; font-size: 17px; }
+  .mute-btn:hover { background: rgba(255,255,255,0.28); }
 
   /* AGE MODAL */
   .modal-overlay { position: fixed; inset: 0; background: rgba(26,26,26,0.55); backdrop-filter: blur(6px); z-index: 200; display: flex; align-items: center; justify-content: center; padding: 24px; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
@@ -232,7 +231,8 @@
       </div>
     </div>
     <div class="video-wrap">
-      <iframe src="https://www.youtube.com/embed/KwhhIXIJ1Ho?autoplay=1&mute=1&loop=1&playlist=KwhhIXIJ1Ho&controls=1&rel=0&modestbranding=1" allow="autoplay; encrypted-media" allowfullscreen title="Lena Ferrara — Biological Age"></iframe>
+      <iframe id="lenaVideo" src="https://www.youtube.com/embed/KwhhIXIJ1Ho?autoplay=1&mute=1&loop=1&playlist=KwhhIXIJ1Ho&controls=0&rel=0&modestbranding=1&enablejsapi=1" allow="autoplay; encrypted-media" allowfullscreen title="Lena Ferrara — Biological Age"></iframe>
+      <button class="mute-btn" id="muteBtn" onclick="toggleMute()" title="Toggle sound">🔇</button>
     </div>
   </div>
 </section>
@@ -387,6 +387,20 @@
   }, { threshold: 0.5 });
   steps.forEach(s => observer.observe(s));
   function scrollToStep(n) { document.getElementById('step-' + n)?.scrollIntoView({ behavior: 'smooth' }); }
+
+  let isMuted = true;
+  function toggleMute() {
+    const iframe = document.getElementById('lenaVideo');
+    const btn = document.getElementById('muteBtn');
+    if (isMuted) {
+      iframe.src = iframe.src.replace('mute=1', 'mute=0');
+      btn.textContent = '🔊';
+    } else {
+      iframe.src = iframe.src.replace('mute=0', 'mute=1');
+      btn.textContent = '🔇';
+    }
+    isMuted = !isMuted;
+  }
 
   let currentAge = 38;
   function openModal(e) { e.preventDefault(); document.getElementById('ageModal').classList.add('visible'); }
