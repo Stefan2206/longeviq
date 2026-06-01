@@ -6,6 +6,5 @@
     { "source": "/baseline",     "destination": "/baseline.html" },
     { "source": "/results",      "destination": "/results.html" },
     { "source": "/checkin",      "destination": "/checkin.html" },
-    { "source": "/scan-preview", "destination": "/scan-flow-preview.html" }
   ]
 }
