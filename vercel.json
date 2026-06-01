@@ -1,10 +1,11 @@
 {
   "cleanUrls": true,
   "rewrites": [
-    { "source": "/tracker",  "destination": "/tracker.html" },
-    { "source": "/privacy",  "destination": "/privacy.html" },
-    { "source": "/baseline", "destination": "/baseline.html" },
-    { "source": "/results",  "destination": "/results.html" },
-    { "source": "/checkin",  "destination": "/checkin.html" }
+    { "source": "/tracker",      "destination": "/tracker.html" },
+    { "source": "/privacy",      "destination": "/privacy.html" },
+    { "source": "/baseline",     "destination": "/baseline.html" },
+    { "source": "/results",      "destination": "/results.html" },
+    { "source": "/checkin",      "destination": "/checkin.html" },
+    { "source": "/scan-preview", "destination": "/scan-flow-preview.html" }
   ]
 }
