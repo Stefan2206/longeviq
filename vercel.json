@@ -5,6 +5,6 @@
     { "source": "/privacy",      "destination": "/privacy.html" },
     { "source": "/baseline",     "destination": "/baseline.html" },
     { "source": "/results",      "destination": "/results.html" },
-    { "source": "/checkin",      "destination": "/checkin.html" },
+    { "source": "/checkin",      "destination": "/checkin.html" }
   ]
 }
