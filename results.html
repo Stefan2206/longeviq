@@ -28,6 +28,21 @@ body { background: var(--warm-white); color: var(--ink); font-family: var(--sans
 nav { display: flex; justify-content: space-between; align-items: center; padding: 1.25rem 4rem; background: var(--warm-white); border-bottom: 1px solid var(--border); }
 .nav-logo { font-family: var(--serif); font-size: 1.25rem; font-weight: 700; color: var(--ink); text-decoration: none; }
 
+/* LOADING STATE */
+.loading-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 60vh; gap: 16px; }
+.loading-spinner { width: 40px; height: 40px; border: 3px solid var(--border); border-top-color: var(--teal); border-radius: 50%; animation: spin 0.8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-text { font-size: 14px; color: var(--ink-light); }
+
+/* ERROR STATE */
+.error-screen { display: none; flex-direction: column; align-items: center; justify-content: center; min-height: 60vh; gap: 16px; text-align: center; padding: 2rem; }
+.error-screen h2 { font-family: var(--serif); font-size: 1.8rem; color: var(--ink); }
+.error-screen p { color: var(--ink-light); font-size: 0.95rem; max-width: 400px; line-height: 1.7; }
+.error-btn { display: inline-flex; align-items: center; gap: 8px; background: var(--teal); color: white; padding: 12px 24px; font-size: 14px; font-weight: 500; text-decoration: none; border-radius: 4px; margin-top: 8px; }
+
+/* RESULTS (hidden until loaded) */
+.results-content { display: none; }
+
 /* HERO RESULT */
 .result-hero { background: var(--teal-dark); color: white; padding: 5rem 4rem; text-align: center; }
 .result-hero-inner { max-width: 640px; margin: 0 auto; }
@@ -46,7 +61,6 @@ nav { display: flex; justify-content: space-between; align-items: center; paddin
 .section-label::before { content: ''; width: 22px; height: 1px; background: var(--teal); }
 .section-title { font-family: var(--serif); font-size: clamp(1.8rem, 3vw, 2.5rem); font-weight: 800; color: var(--ink); margin-bottom: 3rem; line-height: 1.1; }
 .section-title em { font-style: italic; color: var(--teal); }
-
 .kpi-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; }
 .kpi-card { background: white; border: 1px solid var(--border); padding: 1.75rem; transition: transform 0.2s, box-shadow 0.2s; }
 .kpi-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.06); }
@@ -76,7 +90,6 @@ nav { display: flex; justify-content: space-between; align-items: center; paddin
 .protocol-checklist li::before { content: '✓'; color: var(--teal); font-weight: 700; flex-shrink: 0; }
 .btn-protocol { display: inline-flex; align-items: center; gap: 0.5rem; background: var(--teal); color: white; padding: 1rem 2rem; font-family: var(--sans); font-size: 0.82rem; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; text-decoration: none; transition: all 0.2s; }
 .btn-protocol:hover { background: var(--teal-dark); transform: translateY(-2px); }
-
 .email-confirmation { background: white; border: 1px solid var(--border); padding: 2rem; }
 .email-conf-title { font-family: var(--serif); font-size: 1.1rem; font-weight: 700; color: var(--ink); margin-bottom: 0.75rem; }
 .email-conf-text { font-size: 0.88rem; color: var(--ink-light); line-height: 1.7; }
@@ -107,51 +120,68 @@ footer { background: #100F0D; padding: 3rem 4rem; display: flex; justify-content
   <a href="/" class="nav-logo">Longeviq</a>
 </nav>
 
-<div class="result-hero">
-  <div class="result-hero-inner">
-    <div class="result-eyebrow">Your Biological Age Baseline</div>
-    <div class="result-name" id="result-greeting">Your results are ready</div>
-    <div class="bio-age-display" id="overall-score">—</div>
-    <div class="bio-age-label">Overall Longevity Score · out of 10</div>
-    <div class="overall-score-bar"><div class="overall-score-fill" id="overall-bar" style="width:0%"></div></div>
-    <div class="score-context" id="score-context">Loading your results...</div>
-  </div>
+<!-- LOADING STATE -->
+<div class="loading-screen" id="loadingScreen">
+  <div class="loading-spinner"></div>
+  <div class="loading-text">Loading your results…</div>
 </div>
 
-<div class="kpi-section">
-  <div class="section-label">Your KPI breakdown</div>
-  <h2 class="section-title">Here's where you <em>stand.</em></h2>
-  <div class="kpi-grid" id="kpi-grid">
-    <!-- Populated by JS -->
-  </div>
+<!-- ERROR STATE -->
+<div class="error-screen" id="errorScreen">
+  <div style="font-size:48px">🔍</div>
+  <h2>Results not found</h2>
+  <p>We couldn't load your results. This can happen if the link has expired or the questionnaire wasn't completed.</p>
+  <a href="/baseline" class="error-btn">Take the Baseline →</a>
 </div>
 
-<div class="protocol-section">
-  <div class="protocol-inner">
-    <div class="protocol-text">
-      <h2>Your 30-day <em>protocol</em> starts now.</h2>
-      <p>Based on your baseline results, Lena has prepared a personalised 30-day protocol targeting your lowest-scoring KPIs first. You'll receive weekly check-ins to track your progress.</p>
-      <ul class="protocol-checklist">
-        <li>Weekly check-in emails on days 7, 14, 21 & 28</li>
-        <li>Each check-in takes less than 3 minutes</li>
-        <li>Full transformation report on day 28</li>
-        <li>Personalised supplement recommendations</li>
-      </ul>
-      <a href="/tracker" class="btn-protocol">View the full protocol →</a>
+<!-- RESULTS (shown after load) -->
+<div class="results-content" id="resultsContent">
+
+  <div class="result-hero">
+    <div class="result-hero-inner">
+      <div class="result-eyebrow">Your Biological Age Baseline</div>
+      <div class="result-name" id="result-greeting">Your results are ready</div>
+      <div class="bio-age-display" id="overall-score">—</div>
+      <div class="bio-age-label">Overall Longevity Score · out of 10</div>
+      <div class="overall-score-bar"><div class="overall-score-fill" id="overall-bar" style="width:0%"></div></div>
+      <div class="score-context" id="score-context"></div>
     </div>
-    <div class="email-confirmation" id="email-box">
-      <div class="email-conf-title">✓ Your results have been saved</div>
-      <div class="email-conf-text">Check your inbox — your welcome email from Lena is on its way. Here's what happens next:</div>
-      <div class="email-timeline">
-        <div class="timeline-item"><span class="timeline-dot"></span>Today — Welcome email with your full baseline</div>
-        <div class="timeline-item"><span class="timeline-dot"></span>Day 7 — Your first weekly check-in</div>
-        <div class="timeline-item"><span class="timeline-dot"></span>Day 14 — Mid-point progress update</div>
-        <div class="timeline-item"><span class="timeline-dot"></span>Day 21 — Three-week momentum check</div>
-        <div class="timeline-item"><span class="timeline-dot"></span>Day 28 — Your full 30-day report</div>
+  </div>
+
+  <div class="kpi-section">
+    <div class="section-label">Your KPI breakdown</div>
+    <h2 class="section-title">Here's where you <em>stand.</em></h2>
+    <div class="kpi-grid" id="kpi-grid"></div>
+  </div>
+
+  <div class="protocol-section">
+    <div class="protocol-inner">
+      <div class="protocol-text">
+        <h2>Your 30-day <em>protocol</em> starts now.</h2>
+        <p>Based on your baseline results, Lena has prepared a personalised 30-day protocol targeting your lowest-scoring KPIs first. You'll receive weekly check-ins to track your progress.</p>
+        <ul class="protocol-checklist">
+          <li>Weekly check-in emails on days 7, 14, 21 & 28</li>
+          <li>Each check-in takes less than 3 minutes</li>
+          <li>Full transformation report on day 28</li>
+          <li>Personalised supplement recommendations</li>
+        </ul>
+        <a href="/tracker" class="btn-protocol">View the full protocol →</a>
+      </div>
+      <div class="email-confirmation">
+        <div class="email-conf-title">✓ Your results have been saved</div>
+        <div class="email-conf-text">Check your inbox — your welcome email from Lena is on its way. Here's what happens next:</div>
+        <div class="email-timeline">
+          <div class="timeline-item"><span class="timeline-dot"></span>Today — Welcome email with your full baseline</div>
+          <div class="timeline-item"><span class="timeline-dot"></span>Day 7 — Your first weekly check-in</div>
+          <div class="timeline-item"><span class="timeline-dot"></span>Day 14 — Mid-point progress update</div>
+          <div class="timeline-item"><span class="timeline-dot"></span>Day 21 — Three-week momentum check</div>
+          <div class="timeline-item"><span class="timeline-dot"></span>Day 28 — Your full 30-day report</div>
+        </div>
       </div>
     </div>
   </div>
-</div>
+
+</div><!-- end results-content -->
 
 <footer>
   <div class="footer-logo">Longeviq</div>
@@ -167,78 +197,116 @@ const SUPABASE_URL = 'https://hmbpklevxycqcwoscxpq.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_5axZNrPpg8Qgs1xx9cEcqQ_C0b7qfwG';
 
 const kpiMeta = {
-  sleep: { icon: '🌙', name: 'Sleep Quality', feedbackHigh: 'Excellent sleep hygiene. This is your foundation — keep protecting it.', feedbackMid: 'Room to improve. Prioritise sleep consistency and wind-down routines.', feedbackLow: 'This is your #1 priority. Poor sleep accelerates every other ageing marker.' },
-  energy: { icon: '⚡', name: 'Energy Level', feedbackHigh: 'Strong metabolic health. Your mitochondria are performing well.', feedbackMid: 'Some afternoon dips. Focus on meal timing, light exposure, and movement.', feedbackLow: 'Low energy is a key signal. Address sleep, nutrition, and movement first.' },
-  cognitive_sharpness: { icon: '🧠', name: 'Cognitive Sharpness', feedbackHigh: 'Sharp and focused. Protect this with sleep and stress management.', feedbackMid: 'Moderate focus. Reduce screen time, improve sleep, consider omega-3s.', feedbackLow: 'Brain fog is a warning sign. Sleep, exercise, and stress are your levers.' },
-  grip_strength: { icon: '✊', name: 'Grip Strength', feedbackHigh: 'Strong grip is one of the best longevity predictors. Keep training.', feedbackMid: 'Average strength. Add 2x weekly resistance training to your protocol.', feedbackLow: 'Low strength is a longevity risk. Start resistance training immediately.' },
-  resting_heart_rate: { icon: '❤️', name: 'Resting Heart Rate', feedbackHigh: 'Excellent cardiovascular health. Your heart age is likely lower than your passport.', feedbackMid: 'Average. Zone 2 cardio 3x per week will lower your RHR significantly.', feedbackLow: 'High RHR is a risk marker. Prioritise aerobic exercise and stress reduction.' },
-  waist_circumference: { icon: '📏', name: 'Waist Circumference', feedbackHigh: 'Healthy waist measurement. Low visceral fat risk.', feedbackMid: 'Borderline. Reduce processed carbs, increase resistance training.', feedbackLow: 'High visceral fat risk. This is your metabolic priority — address diet and movement.' },
-  mood_resilience: { icon: '🧘', name: 'Mood & Resilience', feedbackHigh: 'Strong psychological resilience. This protects your telomeres.', feedbackMid: 'Moderate stress. Meditation, social connection, and sleep will help.', feedbackLow: 'Chronic stress accelerates ageing. Stress management is non-negotiable.' },
-  physical_strength: { icon: '🏋️', name: 'Physical Strength', feedbackHigh: 'Muscle mass is well maintained. The #1 longevity investment.', feedbackMid: 'Average. Add progressive resistance training to your weekly routine.', feedbackLow: 'Low muscle mass is a longevity risk. Start a structured strength programme.' },
-  recovery_speed: { icon: '🔄', name: 'Recovery Speed', feedbackHigh: 'Fast recovery signals excellent systemic resilience.', feedbackMid: 'Average recovery. Prioritise sleep, protein intake, and stress reduction.', feedbackLow: 'Slow recovery is a sign of systemic overload. Address sleep and stress first.' }
+  sleep_quality:        { icon: '🌙', name: 'Sleep Quality',       feedbackHigh: 'Excellent sleep hygiene. This is your foundation — keep protecting it.',           feedbackMid: 'Room to improve. Prioritise sleep consistency and wind-down routines.',        feedbackLow: 'This is your #1 priority. Poor sleep accelerates every other ageing marker.' },
+  energy_level:         { icon: '⚡', name: 'Energy Level',         feedbackHigh: 'Strong metabolic health. Your mitochondria are performing well.',                   feedbackMid: 'Some afternoon dips. Focus on meal timing, light exposure, and movement.',     feedbackLow: 'Low energy is a key signal. Address sleep, nutrition, and movement first.' },
+  cognitive_sharpness:  { icon: '🧠', name: 'Cognitive Sharpness',  feedbackHigh: 'Sharp and focused. Protect this with sleep and stress management.',                feedbackMid: 'Moderate focus. Reduce screen time, improve sleep, consider omega-3s.',       feedbackLow: 'Brain fog is a warning sign. Sleep, exercise, and stress are your levers.' },
+  grip_strength:        { icon: '✊', name: 'Grip Strength',         feedbackHigh: 'Strong grip is one of the best longevity predictors. Keep training.',              feedbackMid: 'Average strength. Add 2x weekly resistance training to your protocol.',        feedbackLow: 'Low strength is a longevity risk. Start resistance training immediately.' },
+  resting_heart_rate:   { icon: '❤️', name: 'Resting Heart Rate',   feedbackHigh: 'Excellent cardiovascular health. Your heart age is likely lower than your passport.', feedbackMid: 'Average. Zone 2 cardio 3x per week will lower your RHR significantly.',      feedbackLow: 'High RHR is a risk marker. Prioritise aerobic exercise and stress reduction.' },
+  waist_circumference:  { icon: '📏', name: 'Waist Circumference',  feedbackHigh: 'Healthy waist measurement. Low visceral fat risk.',                                 feedbackMid: 'Borderline. Reduce processed carbs, increase resistance training.',           feedbackLow: 'High visceral fat risk. This is your metabolic priority.' },
+  mood_resilience:      { icon: '🧘', name: 'Mood & Resilience',    feedbackHigh: 'Strong psychological resilience. This protects your telomeres.',                    feedbackMid: 'Moderate stress. Meditation, social connection, and sleep will help.',        feedbackLow: 'Chronic stress accelerates ageing. Stress management is non-negotiable.' },
+  physical_strength:    { icon: '🏋️', name: 'Physical Strength',   feedbackHigh: 'Muscle mass is well maintained. The #1 longevity investment.',                      feedbackMid: 'Average. Add progressive resistance training to your weekly routine.',        feedbackLow: 'Low muscle mass is a longevity risk. Start a structured strength programme.' },
+  recovery_speed:       { icon: '🔄', name: 'Recovery Speed',       feedbackHigh: 'Fast recovery signals excellent systemic resilience.',                              feedbackMid: 'Average recovery. Prioritise sleep, protein intake, and stress reduction.',   feedbackLow: 'Slow recovery is a sign of systemic overload. Address sleep and stress first.' }
 };
 
-function getScoreClass(score) {
-  if (score >= 7) return 'high';
-  if (score >= 4) return 'mid';
-  return 'low';
-}
+const kpiKeys = ['sleep_quality','energy_level','cognitive_sharpness','grip_strength','resting_heart_rate','waist_circumference','mood_resilience','physical_strength','recovery_speed'];
+
+function getScoreClass(s) { return s >= 7 ? 'high' : s >= 4 ? 'mid' : 'low'; }
 
 function getScoreContext(overall) {
   if (overall >= 8) return '<strong>Excellent baseline.</strong> You\'re in the top tier of biological health markers. The 30-day protocol will help you maintain and optimise further.';
   if (overall >= 6) return '<strong>Good foundation</strong> with clear areas to improve. The 30-day protocol targets your lowest KPIs for maximum impact.';
-  if (overall >= 4) return '<strong>Significant room for improvement.</strong> The good news: these markers respond quickly to the right interventions. Your 30-day results will be dramatic.';
-  return '<strong>This is your wake-up call.</strong> The data shows real risk — but every one of these markers is reversible with the right protocol. Start today.';
+  if (overall >= 4) return '<strong>Significant room for improvement.</strong> The good news: these markers respond quickly to the right interventions.';
+  return '<strong>This is your wake-up call.</strong> Every one of these markers is reversible with the right protocol. Start today.';
+}
+
+function showError() {
+  document.getElementById('loadingScreen').style.display = 'none';
+  document.getElementById('errorScreen').style.display = 'flex';
+}
+
+function showResults() {
+  document.getElementById('loadingScreen').style.display = 'none';
+  document.getElementById('resultsContent').style.display = 'block';
 }
 
 async function loadResults() {
   const params = new URLSearchParams(window.location.search);
   const userId = params.get('id');
 
-  if (!userId) {
-    document.getElementById('result-greeting').textContent = 'No results found';
-    document.getElementById('overall-score').textContent = '-';
-    document.getElementById('score-context').textContent = 'Please complete the baseline questionnaire first.';
-    return;
-  }
+  if (!userId) { showError(); return; }
 
   try {
-    const response = await fetch(SUPABASE_URL + '/rest/v1/users?id=eq.' + userId + '&select=*', {
-      headers: {
-        'apikey': SUPABASE_KEY,
-        'Authorization': 'Bearer ' + SUPABASE_KEY,
-        'Content-Type': 'application/json'
+    const res = await fetch(
+      `${SUPABASE_URL}/rest/v1/users?id=eq.${encodeURIComponent(userId)}&select=*`,
+      {
+        method: 'GET',
+        headers: {
+          'apikey': SUPABASE_KEY,
+          'Authorization': 'Bearer ' + SUPABASE_KEY,
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        }
       }
-    });
-    if (!response.ok) throw new Error('HTTP ' + response.status);
-    const rows = await response.json();
-    if (!rows || rows.length === 0) {
-      document.getElementById('score-context').textContent = 'Results not found.';
+    );
+
+    if (!res.ok) {
+      console.error('Supabase error:', res.status, await res.text());
+      showError();
       return;
     }
+
+    const rows = await res.json();
+    console.log('Supabase rows:', rows);
+
+    if (!rows || rows.length === 0) { showError(); return; }
+
     const data = rows[0];
-    const kpiDbKeys = ['sleep_quality','energy_level','cognitive_sharpness','grip_strength','resting_heart_rate','waist_circumference','mood_resilience','physical_strength','recovery_speed'];
-    const kpiMetaKeys = ['sleep','energy','cognitive_sharpness','grip_strength','resting_heart_rate','waist_circumference','mood_resilience','physical_strength','recovery_speed'];
-    const overall = Math.round(kpiDbKeys.reduce((s,k) => s + (data[k]||0), 0) / kpiDbKeys.length);
-    document.getElementById('result-greeting').textContent = data.first_name ? 'Hi ' + data.first_name + ', here are your results' : 'Your results are ready';
+    const scores = kpiKeys.map(k => Number(data[k]) || 0);
+    const overall = Math.round(scores.reduce((a, b) => a + b, 0) / scores.length);
+
+    // Fill hero
+    document.getElementById('result-greeting').textContent =
+      data.first_name ? `Hi ${data.first_name}, here are your results` : 'Your results are ready';
     document.getElementById('overall-score').textContent = overall;
     document.getElementById('score-context').innerHTML = getScoreContext(overall);
-    setTimeout(() => { document.getElementById('overall-bar').style.width = (overall*10)+'%'; }, 300);
+    setTimeout(() => {
+      document.getElementById('overall-bar').style.width = (overall * 10) + '%';
+    }, 300);
+
+    // Build KPI cards
     const grid = document.getElementById('kpi-grid');
-    kpiDbKeys.forEach((key, i) => {
-      const score = data[key] || 0;
-      const meta = kpiMeta[kpiMetaKeys[i]];
-      const cls = getScoreClass(score);
-      const feedback = cls==='high' ? meta.feedbackHigh : cls==='mid' ? meta.feedbackMid : meta.feedbackLow;
-      const card = document.createElement('div');
+    grid.innerHTML = '';
+    kpiKeys.forEach((key, i) => {
+      const score = scores[i];
+      const meta  = kpiMeta[key];
+      const cls   = getScoreClass(score);
+      const fb    = cls === 'high' ? meta.feedbackHigh : cls === 'mid' ? meta.feedbackMid : meta.feedbackLow;
+      const card  = document.createElement('div');
       card.className = 'kpi-card';
-      card.innerHTML = '<div class="kpi-card-header"><div class="kpi-icon-name"><span class="kpi-icon">' + meta.icon + '</span><span class="kpi-name">' + meta.name + '</span></div><span class="kpi-score-badge score-' + cls + '">' + score + '</span></div><div class="kpi-bar-wrap"><div class="kpi-bar bar-' + cls + '" style="width:0%" id="bar-' + i + '"></div></div><div class="kpi-feedback">' + feedback + '</div>';
+      card.innerHTML = `
+        <div class="kpi-card-header">
+          <div class="kpi-icon-name">
+            <span class="kpi-icon">${meta.icon}</span>
+            <span class="kpi-name">${meta.name}</span>
+          </div>
+          <span class="kpi-score-badge score-${cls}">${score}</span>
+        </div>
+        <div class="kpi-bar-wrap">
+          <div class="kpi-bar bar-${cls}" style="width:0%" id="bar-${i}"></div>
+        </div>
+        <div class="kpi-feedback">${fb}</div>`;
       grid.appendChild(card);
-      setTimeout(() => { document.getElementById('bar-'+i).style.width = (score*10)+'%'; }, 300+i*80);
+      setTimeout(() => {
+        const bar = document.getElementById('bar-' + i);
+        if (bar) bar.style.width = (score * 10) + '%';
+      }, 400 + i * 80);
     });
-  } catch(err) {
-    document.getElementById('score-context').textContent = 'Error loading results.';
-    console.error(err);
+
+    showResults();
+
+  } catch (err) {
+    console.error('Load error:', err);
+    showError();
   }
 }
 
