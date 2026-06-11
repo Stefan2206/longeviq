@@ -512,6 +512,18 @@ footer {
 </footer>
 
 <script>
+var video = document.getElementById('heroVideo');
+video.muted = true;
+var playPromise = video.play();
+if (playPromise !== undefined) {
+  playPromise.catch(function() {
+    document.addEventListener('click', function resume() {
+      video.play();
+      document.removeEventListener('click', resume);
+    }, { once: true });
+  });
+}
+
 function toggleMute() {
   var video = document.getElementById('heroVideo');
   var label = document.getElementById('muteLabel');
