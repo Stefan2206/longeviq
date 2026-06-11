@@ -46,7 +46,7 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 200; display: flex; j
 /* VIDEO HERO — full width */
 .video-hero { width: 100%; padding-top: 72px; background: #000; position: relative; }
 .video-wrap { position: relative; width: 100%; padding-bottom: 56.25%; overflow: hidden; }
-.video-wrap iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; }
+.video-wrap video { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; object-fit: cover; }
 .sound-btn { position: absolute; bottom: 1.5rem; right: 1.5rem; background: rgba(0,0,0,0.6); color: white; border: 1px solid rgba(255,255,255,0.3); padding: 0.6rem 1rem; font-family: var(--sans); font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer; z-index: 20; display: flex; align-items: center; gap: 0.5rem; transition: background 0.2s; }
 .sound-btn:hover { background: rgba(0,0,0,0.85); }
 
@@ -224,7 +224,9 @@ footer { background: #100F0D; padding: 3rem 4rem; display: flex; justify-content
 <!-- FULL WIDTH VIDEO -->
 <div class="video-hero">
   <div class="video-wrap">
-    <iframe id="yt-player" src="https://www.youtube.com/embed/2pxidTDADA0?autoplay=1&mute=1&loop=1&playlist=2pxidTDADA0&controls=0&showinfo=0&rel=0&modestbranding=1&playsinline=1&cc_load_policy=0&iv_load_policy=3&enablejsapi=1" frameborder="0" allow="autoplay; fullscreen" allowfullscreen></iframe>
+    <video id="yt-player" autoplay muted loop playsinline>
+      <source src="/assets/hero.mp4" type="video/mp4">
+    </video>
   </div>
   <button class="sound-btn" id="sound-toggle" onclick="toggleSound()">🔇 Unmute</button>
 </div>
@@ -256,19 +258,27 @@ footer { background: #100F0D; padding: 3rem 4rem; display: flex; justify-content
 </div>
 
 <script>
-var muted = true;
+var video = document.getElementById('yt-player');
+video.muted = true;
+var playPromise = video.play();
+if (playPromise !== undefined) {
+  playPromise.catch(function() {
+    document.addEventListener('click', function resume() {
+      video.play();
+      document.removeEventListener('click', resume);
+    }, { once: true });
+  });
+}
+
 function toggleSound() {
-  var iframe = document.getElementById('yt-player');
   var btn = document.getElementById('sound-toggle');
-  var src = iframe.src;
-  if (muted) {
-    iframe.src = src.replace('mute=1', 'mute=0');
+  if (video.muted) {
+    video.muted = false;
+    video.volume = 0.8;
     btn.innerHTML = '🔊 Mute';
-    muted = false;
   } else {
-    iframe.src = src.replace('mute=0', 'mute=1');
+    video.muted = true;
     btn.innerHTML = '🔇 Unmute';
-    muted = true;
   }
 }
 </script>
