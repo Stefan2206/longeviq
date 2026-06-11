@@ -5,7 +5,6 @@
     { "source": "/results", "destination": "/results.html" },
     { "source": "/checkin", "destination": "/checkin.html" },
     { "source": "/privacy", "destination": "/privacy.html" },
-    { "source": "/scan", "destination": "/scan.html" },
-    { "source": "/scan-flow-preview", "destination": "/scan-flow-preview.html" }
+    { "source": "/scan", "destination": "/scan.html" }
   ]
 }
