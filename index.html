@@ -102,10 +102,11 @@ nav {
   background: linear-gradient(to right, var(--teal-dark) 0%, transparent 30%);
   z-index: 2; pointer-events: none;
 }
-.hero-video-wrap iframe {
+.hero-video-wrap video {
   position: absolute; top: -8%; left: -5%;
   width: 110%; height: 116%;
   border: none; pointer-events: none;
+  object-fit: cover;
 }
 .mute-toggle {
   position: absolute; bottom: 40px; right: 40px; z-index: 10;
@@ -344,13 +345,9 @@ footer {
   </div>
   <div class="hero-right">
     <div class="hero-video-wrap">
-      <iframe
-        id="heroVideo"
-        src="https://www.youtube.com/embed/2pxidTDADA0?autoplay=1&mute=1&loop=1&playlist=2pxidTDADA0&controls=0&rel=0&modestbranding=1&playsinline=1&enablejsapi=1"
-        allow="autoplay; encrypted-media"
-        allowfullscreen
-        title="Longeviq — Lena Ferrara">
-      </iframe>
+      <video id="heroVideo" autoplay muted loop playsinline>
+        <source src="/assets/hero.mp4" type="video/mp4">
+      </video>
     </div>
     <button class="mute-toggle" id="muteBtn" onclick="toggleMute()">
       <svg id="muteIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -524,25 +521,22 @@ footer {
 </footer>
 
 <script>
-var isMuted = true;
 function toggleMute() {
-  var iframe = document.getElementById('heroVideo');
+  var video = document.getElementById('heroVideo');
   var label = document.getElementById('muteLabel');
   var line1 = document.getElementById('muteLine1');
   var line2 = document.getElementById('muteLine2');
-  if (isMuted) {
-    iframe.contentWindow.postMessage('{"event":"command","func":"unMute","args":""}', '*');
-    iframe.contentWindow.postMessage('{"event":"command","func":"setVolume","args":[80]}', '*');
+  if (video.muted) {
+    video.muted = false;
+    video.volume = 0.8;
     label.textContent = 'Mute';
     line1.style.display = 'none';
     line2.style.display = 'none';
-    isMuted = false;
   } else {
-    iframe.contentWindow.postMessage('{"event":"command","func":"mute","args":""}', '*');
+    video.muted = true;
     label.textContent = 'Unmute';
     line1.style.display = '';
     line2.style.display = '';
-    isMuted = true;
   }
 }
 </script>
